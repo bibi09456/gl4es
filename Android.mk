@@ -8,7 +8,8 @@ LOCAL_PATH := $(call my-dir)
 
 include $(CLEAR_VARS)
 
-LOCAL_MODULE := GL
+# LOCAL_MODULE := GL
+LOCAL_MODULE := gl4es_115
 
 LOCAL_C_INCLUDES := $(LOCAL_PATH)/include
 
@@ -98,5 +99,6 @@ LOCAL_CFLAGS += -DDEFAULT_ES=2
 LOCAL_LDLIBS := -llog
 #building as a static lib
 
-LOCAL_CFLAGS += -DSTATICLIB
-include $(BUILD_STATIC_LIBRARY)
+# LOCAL_CFLAGS += -DSTATICLIB
+# include $(BUILD_STATIC_LIBRARY)
+include $(BUILD_SHARED_LIBRARY)
