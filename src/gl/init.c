@@ -143,6 +143,7 @@ void initialize_gl4es() {
     switch(globals4es.es) {
       case 1:
       case 2:
+      case 3:
         break;
       default:
         // automatic ES backend selection
