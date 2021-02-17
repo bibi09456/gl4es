@@ -257,7 +257,7 @@ void GetHardwareExtensions(int notest)
     }
     S("GL_EXT_blend_minmax ", blendminmax, 1);
     S("GL_EXT_draw_buffers ", drawbuffers, 1);
-    if (hardest.esversion == 3) {
+    if (hardext.esversion == 3) {
         SHUT_LOGD("GL_EXT_draw_buffers is supported because current context is ES3\n");
         drawbuffers = 1;
     }
