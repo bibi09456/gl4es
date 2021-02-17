@@ -259,7 +259,7 @@ void GetHardwareExtensions(int notest)
     S("GL_EXT_draw_buffers ", drawbuffers, 1);
     if (hardext.esversion == 3) {
         SHUT_LOGD("GL_EXT_draw_buffers is supported because current context is ES3\n");
-        drawbuffers = 1;
+        hardext.drawbuffers = 1;
     }
     /*if(hardext.blendcolor==0) {
         // try by just loading the function
