@@ -257,6 +257,10 @@ void GetHardwareExtensions(int notest)
     }
     S("GL_EXT_blend_minmax ", blendminmax, 1);
     S("GL_EXT_draw_buffers ", drawbuffers, 1);
+    if (hardest.esversion == 3) {
+        SHUT_LOGD("GL_EXT_draw_buffers is supported because current context is ES3\n");
+        drawbuffers = 1;
+    }
     /*if(hardext.blendcolor==0) {
         // try by just loading the function
         LOAD_GLES_OR_OES(glBlendColor);
@@ -388,7 +392,10 @@ void GetHardwareExtensions(int notest)
         if(hardext.aniso)
             SHUT_LOGD("Max Anisotropic filtering: %d\n", hardext.aniso);
     }
-    if(hardext.drawbuffers) {
+    if (hardest.esversion == 3) {
+        gles_glGetIntegerv(GL_MAX_COLOR_ATTACHMENTS,&hardext.maxcolorattach);
+        gles_glGetIntegerv(GL_MAX_DRAW_BUFFERS, &hardext.maxdrawbuffers);
+    } else if(hardext.drawbuffers) {
         gles_glGetIntegerv(GL_MAX_COLOR_ATTACHMENTS_EXT,&hardext.maxcolorattach);
         gles_glGetIntegerv(GL_MAX_DRAW_BUFFERS_ARB, &hardext.maxdrawbuffers);
     }
