@@ -492,7 +492,7 @@ char* ConvertShader(const char* pEntry, int isVertex, shaderconv_need_t *need)
   int wanthighp = !fpeShader;
   if(wanthighp && !hardext.highp) wanthighp = 0;
   int versionHeader = 0;
-  if(versionString && strcmp(versionString, "120")==0)
+  if(versionString && (strcmp(versionString, "120")==0 || strcmp(versionString, "150")==0))
      version120 = 1;
   if(version120) {
     if(hardext.glsl120) versionHeader = 1;
