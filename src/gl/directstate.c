@@ -366,7 +366,12 @@ void gl4es_glEnableClientStateIndexed(GLenum array, GLuint index) {
         errorShim(GL_INVALID_ENUM);
     }
 }
+#ifndef __APPLE__
+void gl4es_glEnableClientStatei(GLenum array, GLuint index) __attribute__((alias("gl4es_glEnableClientStateIndexed")));
+#else
 void gl4es_glEnableClientStatei(GLenum array, GLuint index) AliasExport("gl4es_glEnableClientStateIndexed");
+#endif
+
 void gl4es_glDisableClientStateIndexed(GLenum array, GLuint index) {
     DBG(printf("glDisableClientStateIndexed(%s, %d)\n", PrintEnum(array), index);)
     if (array == GL_TEXTURE_COORD_ARRAY) {
@@ -379,7 +384,11 @@ void gl4es_glDisableClientStateIndexed(GLenum array, GLuint index) {
         errorShim(GL_INVALID_ENUM);
     }
 }
+#ifndef __APPLE__
+void gl4es_glDisableClientStatei(GLenum array, GLuint index) __attribute__((alias("gl4es_glDisableClientStateIndexed")));
+#else
 void gl4es_glDisableClientStatei(GLenum array, GLuint index) AliasExport("gl4es_glDisableClientStateIndexed");
+#endif
 
 void gl4es_glEnableVertexArray(GLuint vaobj, GLenum array) {
     DBG(printf("glEnableVertexArray(%d, %s)\n", vaobj, PrintEnum(array));)
