@@ -165,6 +165,16 @@ else()
     list(APPEND GL_SRC
         ${CMAKE_CURRENT_SOURCE_DIR}/glx/hardext.c
     )
+
+    if(${CMAKE_SYSTEM_NAME} MATCHES "iOS")
+        list(APPEND GL_SRC
+            ${CMAKE_CURRENT_SOURCE_DIR}/glx/glx.c
+            ${CMAKE_CURRENT_SOURCE_DIR}/glx/lookup.c
+            ${CMAKE_CURRENT_SOURCE_DIR}/glx/gbm.c
+            ${CMAKE_CURRENT_SOURCE_DIR}/glx/streaming.c
+        )
+    endif()
+
     message(STATUS "Not on Linux: building without GLX support.")
 endif()
 
@@ -208,6 +218,12 @@ else()
     endif()
     if(ANDROID)
         target_link_libraries(GL ${log-lib})
+    endif()
+    if(${CMAKE_SYSTEM_NAME} MATCHES "iOS")
+        target_link_libraries(GL
+            "-FFrameworks"
+            "-framework MetalANGLE"
+        )
     endif()
     
     if(CMAKE_SHARED_LIBRARY_SUFFIX MATCHES ".so")

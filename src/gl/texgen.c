@@ -248,6 +248,9 @@ void eye_loop(const GLfloat *verts, const GLfloat *param, GLfloat *out, GLint co
     }
 }
 
+#ifdef __APPLE__
+# define glGetFloatv gl4es_glGetFloatv
+#endif
 void eye_loop_dual(const GLfloat *verts, const GLfloat *param1, const GLfloat* param2, GLfloat *out, GLint count, GLushort *indices) {
     // based on https://www.opengl.org/wiki/Mathematics_of_glTexGen
     // First get the ModelviewMatrix
