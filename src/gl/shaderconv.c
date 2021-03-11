@@ -492,6 +492,12 @@ char* ConvertShader(const char* pEntry, int isVertex, shaderconv_need_t *need)
   int wanthighp = !fpeShader;
   if(wanthighp && !hardext.highp) wanthighp = 0;
   int versionHeader = 0;
+
+  #if 1
+  // support for higher glsl require much more work
+  // around some keyword
+  // like in/out that depend on the shader beeing vertex or fragment
+  // and a few other little things...
   if(versionString && (strcmp(versionString, "120")==0 || strcmp(versionString, "150")==0))
      version120 = 1;
   if(version120) {
@@ -500,6 +506,7 @@ char* ConvertShader(const char* pEntry, int isVertex, shaderconv_need_t *need)
     else if(hardext.glsl300es) { versionHeader = 3; /* location on uniform not supported ! */ }
     /* else no location or in / out are supported */
   }
+  #endif
   //sprintf(GLESFullHeader, GLESHeader, (wanthighp && hardext.highp==1 && !isVertex)?GLESUseFragHighp:"", (wanthighp)?"highp":"mediump", (wanthighp)?"highp":"mediump");
   sprintf(GLESFullHeader, GLESHeader[versionHeader], "", (wanthighp)?"highp":"mediump", (wanthighp)?"highp":"mediump");
 
