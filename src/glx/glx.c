@@ -42,10 +42,6 @@
 #define AliasExport(name)   __attribute__((alias(name))) __attribute__((visibility("default")))
 #endif
 
-#ifndef __APPLE__
-#define Display void;
-#endif
-
 //#define DEBUG
 #ifdef DEBUG
 #pragma GCC optimize 0
