@@ -164,6 +164,10 @@ else()
     include_directories(glx)
     list(APPEND GL_SRC
         ${CMAKE_CURRENT_SOURCE_DIR}/glx/hardext.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/glx/glx.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/glx/lookup.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/glx/gbm.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/glx/streaming.c
     )
     message(STATUS "Not on Linux: building without GLX support.")
 endif()
@@ -209,6 +213,11 @@ else()
     if(ANDROID)
         target_link_libraries(GL ${log-lib})
     endif()
+    
+    target_link_libraries(GL
+         "-FFrameworks"
+         "-framework MetalANGLE"
+    )
     
     if(CMAKE_SHARED_LIBRARY_SUFFIX MATCHES ".so")
         set_target_properties(GL PROPERTIES SUFFIX ".so.1")
