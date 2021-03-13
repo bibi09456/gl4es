@@ -285,8 +285,8 @@ static const char* gl_TexMatrixSources[] = {
 static const char* GLESHeader[] = {
   "#version 100\n%sprecision %s float;\nprecision %s int;\n",
   "#version 120\n%sprecision %s float;\nprecision %s int;\n",
-  "#version 310 es\n#define texture2D texture\n#define attribute in\n#define varying out\n%sprecision %s float;\nprecision %s int;\n",
-  "#version 300 es\n#define texture2D texture\n#define attribute in\n#define varying out\n%sprecision %s float;\nprecision %s int;\n"
+  "#version 310 es\n%sprecision %s float;\nprecision %s int;\n",
+  "#version 300 es\n%sprecision %s float;\nprecision %s int;\n"
 };
 
 static const char* gl4es_transpose =
@@ -1224,6 +1224,11 @@ char* ConvertShader(const char* pEntry, int isVertex, shaderconv_need_t *need)
     Tmp = InplaceReplace(Tmp, &tmpsize, "mat3x3", "mat3");
   }
   
+  if (versionHeader > 1) {
+    const char* GLESBackport = "#define texture2D texture\n#define attribute in\n#define varying out\n";
+    Tmp = InplaceInsert(GetLine(Tmp, 1), GLESBackport, Tmp, &tmpsize);
+  }
+
   // finish
   if((globals4es.dbgshaderconv&maskafter)==maskafter) {
     printf("New Shader source:\n%s\n", Tmp);
