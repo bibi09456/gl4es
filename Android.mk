@@ -97,6 +97,11 @@ LOCAL_CFLAGS += -DNO_GBM
 LOCAL_CFLAGS += -DDEFAULT_ES=2
 
 LOCAL_LDLIBS := -llog
+
+ifeq ($(NDK_DEBUG),1)
+    cmd-strip := 
+endif
+
 #building as a static lib
 
 # LOCAL_CFLAGS += -DSTATICLIB
