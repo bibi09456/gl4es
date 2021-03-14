@@ -501,13 +501,6 @@ char* ConvertShader(const char* pEntry, int isVertex, shaderconv_need_t *need)
   if(versionString && (strcmp(versionString, "120")==0 || strcmp(versionString, "150")==0))
      version120 = 1;
   if(version120) {
-    // temporary for override GLSL ES
-    char *glslesOverride = getenv("LIBGL_GLSLES");
-    if (glslesOverride) {
-      hardext.glsl300es = hardext.glsl310es = strcmp(glslesOverride, "310")==0;
-      hardext.glsl300es = hardext.glsl300es ? 1 : strcmp(glslesOverride, "300")==0;
-    }
-
     if(hardext.glsl120) versionHeader = 1;
     else if(hardext.glsl310es) versionHeader = 2;
     else if(hardext.glsl300es) { versionHeader = 3; /* location on uniform not supported ! */ }
