@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 2.8.12)
 
 project(gl4es LANGUAGES C)
 
@@ -23,11 +23,22 @@ option(USE_CCACHE "Set to ON to use ccache if present in the system" ${USE_CCACH
 option(USE_CLOCK "Set to ON to use clock_gettime instead of gttimeofday for LIBGL_FPS" ${USE_CLOCK})
 option(NO_LOADER "disable library loader (useful for static library with NOEGL, NOX11, use include/gl4esinit.h)" ${NO_LOADER})
 option(NO_INIT_CONSTRUCTOR "disable automatic initialization (useful for static library, use include/gl4esinit.h)" ${NO_INIT_CONSTRUCTOR})
+option(USE_ANDROID_LOG "Set to ON to use Android log instead of stdio" ${USE_ANDROID_LOG})
+option(EGL_WRAPPER "Set to ON to build EGL wrapper" ${EGL_WRAPPER})
 
 include(CheckSymbolExists)
 check_symbol_exists(backtrace "execinfo.h" HAS_BACKTRACE)
 if (HAS_BACKTRACE)
     add_definitions(-DHAS_BACKTRACE)
+endif()
+
+if(CMAKE_SYSTEM_NAME MATCHES "Windows" OR CMAKE_SYSTEM_NAME MATCHES "MSYS")
+    set(NOX11 ON)
+    set(NO_GBM ON)
+    set(WIN32_PLATFORM ON)
+    if(CMAKE_C_COMPILER_ID MATCHES "MSVC" OR "x${CMAKE_C_SIMULATE_ID}" STREQUAL "xMSVC")
+        set(WIN32_MSVC ON)  #msvc or icl or clang-cl
+    endif()
 endif()
 
 # Pandora
@@ -81,6 +92,10 @@ endif()
 if(ANDROID)
     add_definitions(-DANDROID)
     add_definitions(-DNOX11 -DNO_GBM -DDEFAULT_ES=2)
+endif()
+
+if(USE_ANDROID_LOG)
+    add_definitions(-DUSE_ANDROID_LOG)
     find_library(log-lib log)
 endif()
 
@@ -157,7 +172,26 @@ if(USE_CCACHE)
 endif()
 
 link_directories(${CMAKE_SOURCE_DIR}/lib)
-add_definitions(-std=gnu11 -funwind-tables -fvisibility=default)
+if(NOT WIN32_MSVC)
+    add_definitions(-std=gnu11 -funwind-tables)
+    if(NOT WIN32_PLATFORM)
+       add_definitions(-fvisibility=default)
+    else()
+       set(CMAKE_SHARED_LINKER_FLAGS "-Wl,--exclude-all-symbols,--kill-at")
+    endif()
+elseif(CMAKE_C_COMPILER_ID MATCHES "Clang")
+    add_definitions(-Wno-deprecated-declarations) #strdup
+    add_definitions(-Wno-unused-function -Wno-unused-variable -Wno-dangling-else)
+    add_definitions(-Wno-implicit-const-int-float-conversion)
+    add_definitions(-Wno-visibility)
+else()
+    if(CMAKE_C_COMPILER_ID MATCHES "Intel")
+        add_definitions(-wd1786 -wd589 -wd537 -wd118 -wd2722)
+    else()
+        add_definitions(-wd4996 -wd4244 -wd4267 -wd4098 -wd4018)
+    endif()
+    add_definitions("-Dinline=__inline" "-D__func__=__FUNCTION__") # for VC<=13
+endif()
 
 if (CMAKE_CC_COMPILER_ID MATCHES "Clang" OR CMAKE_SYSTEM_NAME MATCHES "Emscripten")
     add_definitions(-Wno-pointer-sign -Wno-dangling-else)
