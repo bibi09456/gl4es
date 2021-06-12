@@ -197,7 +197,16 @@ endif()
 
 set_source_files_properties(${CMAKE_CURRENT_SOURCE_DIR}/gl/build_info.c PROPERTIES OBJECT_DEPENDS "${GL_SRC};${GL_H}")
 
-if(STATICLIB)
+if(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+    if(STATICLIB)
+        add_library(OPENGL32 STATIC ${GL_SRC})
+    else()
+        add_library(OPENGL32 SHARED ${GL_SRC})
+        # some ES simulators used opengl32.dll :(
+        set_target_properties(OPENGL32 PROPERTIES OUTPUT_NAME "GL32")
+        set_target_properties(OPENGL32 PROPERTIES IMPORT_PREFIX "OPEN")
+    endif()
+elseif(STATICLIB)
     add_library(GL STATIC ${GL_SRC})
 else()
     add_library(GL SHARED ${GL_SRC})
@@ -216,7 +225,7 @@ else()
     if(USE_CLOCK)
         target_link_libraries(GL rt)
     endif()
-    if(ANDROID)
+    if(USE_ANDROID_LOG)
         target_link_libraries(GL ${log-lib})
     endif()
     if(${CMAKE_SYSTEM_NAME} MATCHES "iOS")
@@ -237,3 +246,25 @@ else()
       DESTINATION "/usr/include/gl4es/"
     )
 endif()
+
+
+SET(EGL_SRC
+    ${CMAKE_CURRENT_SOURCE_DIR}/egl/egl.c
+    ${CMAKE_CURRENT_SOURCE_DIR}/egl/lookup.c
+)
+
+SET(EGL_H
+    ${CMAKE_CURRENT_SOURCE_DIR}/egl/egl.h
+)
+
+if(EGL_WRAPPER)
+    add_library(EGL SHARED ${EGL_SRC})
+    target_link_libraries(EGL GL dl)
+    if(USE_ANDROID_LOG)
+        target_link_libraries(EGL ${log-lib})
+    endif()
+    if(CMAKE_SHARED_LIBRARY_SUFFIX MATCHES ".so")
+        set_target_properties(EGL PROPERTIES SUFFIX ".so.1")
+    endif()
+endif()
+

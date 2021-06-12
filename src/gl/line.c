@@ -15,7 +15,7 @@
 #define DBG(a)
 #endif
 
-void gl4es_glLineStipple(GLuint factor, GLushort pattern) {
+void APIENTRY_GL4ES gl4es_glLineStipple(GLuint factor, GLushort pattern) {
     DBG(printf("glLineStipple(%d, 0x%04X)\n", factor, pattern);)
     if(glstate->list.active) {
         if (glstate->list.compiling) {
@@ -64,7 +64,7 @@ void gl4es_glLineStipple(GLuint factor, GLushort pattern) {
         noerrorShim();
     }
 }
-void glLineStipple(GLuint factor, GLushort pattern) AliasExport("gl4es_glLineStipple");
+AliasExport(void,glLineStipple,,(GLuint factor, GLushort pattern));
 
 void bind_stipple_tex() {
     gl4es_glBindTexture(GL_TEXTURE_2D, glstate->linestipple.texture);

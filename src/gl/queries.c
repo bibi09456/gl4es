@@ -1,7 +1,9 @@
+#ifndef _WIN32
 #ifdef USE_CLOCK
 #include <time.h>
 #else
 #include <sys/time.h>
+#endif
 #endif
 
 #include "queries.h"
@@ -10,11 +12,19 @@
 #include "gl4es.h"
 #include "glstate.h"
 #include "loader.h"
+#ifdef _WIN32
+#ifdef _WINBASE_
+#define GSM_CAST(c) ((LPFILETIME)c)
+#else
+__declspec(dllimport)
+void __stdcall GetSystemTimeAsFileTime(unsigned __int64*);
+#define GSM_CAST(c) ((__int64*)c)
+#endif
+#endif
 
 KHASH_MAP_IMPL_INT(queries, glquery_t *);
 
 static GLuint new_query(GLuint base) {
-    int ret;
     khint_t k;
     khash_t(queries) *list = glstate->queries.querylist;
     while(1) {
@@ -26,7 +36,6 @@ static GLuint new_query(GLuint base) {
 }
 
 static glquery_t* find_query(GLuint querie) {
-    int ret;
     khint_t k;
     khash_t(queries) *list = glstate->queries.querylist;
     k = kh_get(queries, list, querie);
@@ -38,8 +47,6 @@ static glquery_t* find_query(GLuint querie) {
 }
 
 static glquery_t* find_query_target(GLenum target) {
-    int ret;
-    khint_t k;
     khash_t(queries) *list = glstate->queries.querylist;
 	glquery_t *q;
     kh_foreach_value(list, q,
@@ -51,7 +58,6 @@ static glquery_t* find_query_target(GLenum target) {
 
 
 void del_querie(GLuint querie) {
-    int ret;
     khint_t k;
     khash_t(queries) *list = glstate->queries.querylist;
     k = kh_get(queries, list, querie);
@@ -66,7 +72,9 @@ void del_querie(GLuint querie) {
 
 unsigned long long get_clock() {
 	unsigned long long now;
-	#ifdef USE_CLOCK
+	#ifdef _WIN32
+        GetSystemTimeAsFileTime(GSM_CAST(&now));
+	#elif defined(USE_CLOCK)
 	struct timespec out;
 	clock_gettime(CLOCK_MONOTONIC_RAW, &out);
 	now = ((unsigned long long)out.tv_sec)*1000000000LL + out.tv_nsec;
@@ -78,7 +86,7 @@ unsigned long long get_clock() {
 	return now;
 }
 
-void gl4es_glGenQueries(GLsizei n, GLuint * ids) {
+void APIENTRY_GL4ES gl4es_glGenQueries(GLsizei n, GLuint * ids) {
     FLUSH_BEGINEND;
 	noerrorShim();
     if (n<1) {
@@ -90,7 +98,7 @@ void gl4es_glGenQueries(GLsizei n, GLuint * ids) {
     }
 }
 
-GLboolean gl4es_glIsQuery(GLuint id) {
+GLboolean APIENTRY_GL4ES gl4es_glIsQuery(GLuint id) {
 	if(glstate->list.compiling) {errorShim(GL_INVALID_OPERATION); return GL_FALSE;}
 	FLUSH_BEGINEND;
 	glquery_t *querie = find_query(id);
@@ -99,7 +107,7 @@ GLboolean gl4es_glIsQuery(GLuint id) {
 	return GL_FALSE;
 }
 
-void gl4es_glDeleteQueries(GLsizei n, const GLuint* ids) {
+void APIENTRY_GL4ES gl4es_glDeleteQueries(GLsizei n, const GLuint* ids) {
     FLUSH_BEGINEND;
     if(n<0) {
         errorShim(GL_INVALID_VALUE);
@@ -112,7 +120,7 @@ void gl4es_glDeleteQueries(GLsizei n, const GLuint* ids) {
         del_querie(ids[i]);
 }
 
-void gl4es_glBeginQuery(GLenum target, GLuint id) {
+void APIENTRY_GL4ES gl4es_glBeginQuery(GLenum target, GLuint id) {
     FLUSH_BEGINEND;
     glquery_t *query = find_query(id);
 	if(!query) {
@@ -145,7 +153,7 @@ void gl4es_glBeginQuery(GLenum target, GLuint id) {
     noerrorShim();
 }
 
-void gl4es_glEndQuery(GLenum target) {
+void APIENTRY_GL4ES gl4es_glEndQuery(GLenum target) {
     FLUSH_BEGINEND;
 	glquery_t *query = find_query_target(target);
 	if(!query) {
@@ -169,7 +177,7 @@ void gl4es_glEndQuery(GLenum target) {
 	noerrorShim();
 }
 
-void gl4es_glGetQueryiv(GLenum target, GLenum pname, GLint* params) {
+void APIENTRY_GL4ES gl4es_glGetQueryiv(GLenum target, GLenum pname, GLint* params) {
     FLUSH_BEGINEND;
 
 	glquery_t *q = find_query_target(target);
@@ -191,9 +199,7 @@ void gl4es_glGetQueryiv(GLenum target, GLenum pname, GLint* params) {
 	}
 }
 
-void gl4es_glGetQueryObjectiv(GLuint id, GLenum pname, GLint* params) {
-   	khint_t k;
-   	int ret;
+void APIENTRY_GL4ES gl4es_glGetQueryObjectiv(GLuint id, GLenum pname, GLint* params) {
     FLUSH_BEGINEND;
 
 	glquery_t *query = find_query(id);
@@ -216,7 +222,7 @@ void gl4es_glGetQueryObjectiv(GLuint id, GLenum pname, GLint* params) {
     noerrorShim();
 }
 
-void gl4es_glGetQueryObjectuiv(GLuint id, GLenum pname, GLuint* params) {
+void APIENTRY_GL4ES gl4es_glGetQueryObjectuiv(GLuint id, GLenum pname, GLuint* params) {
     FLUSH_BEGINEND;
 		
 	glquery_t *query = find_query(id);
@@ -240,7 +246,7 @@ void gl4es_glGetQueryObjectuiv(GLuint id, GLenum pname, GLuint* params) {
     noerrorShim();
 }
 
-void gl4es_glQueryCounter(GLuint id, GLenum target)
+void APIENTRY_GL4ES gl4es_glQueryCounter(GLuint id, GLenum target)
 {
     FLUSH_BEGINEND;
 		
@@ -263,7 +269,7 @@ void gl4es_glQueryCounter(GLuint id, GLenum target)
 }
 
 
-void gl4es_glGetQueryObjecti64v(GLuint id, GLenum pname, GLint64 * params)
+void APIENTRY_GL4ES gl4es_glGetQueryObjecti64v(GLuint id, GLenum pname, GLint64 * params)
 {
 	FLUSH_BEGINEND;
 		
@@ -288,7 +294,7 @@ void gl4es_glGetQueryObjecti64v(GLuint id, GLenum pname, GLint64 * params)
     noerrorShim();
 }
 	
-void gl4es_glGetQueryObjectui64v(GLuint id, GLenum pname, GLuint64 * params)
+void APIENTRY_GL4ES gl4es_glGetQueryObjectui64v(GLuint id, GLenum pname, GLuint64 * params)
 {
     FLUSH_BEGINEND;
 		
@@ -316,25 +322,25 @@ void gl4es_glGetQueryObjectui64v(GLuint id, GLenum pname, GLuint64 * params)
 
 
 //Direct wrapper
-void glGenQueries(GLsizei n, GLuint * ids) AliasExport("gl4es_glGenQueries");
-GLboolean glIsQuery(GLuint id) AliasExport("gl4es_glIsQuery");
-void glDeleteQueries(GLsizei n, const GLuint* ids) AliasExport("gl4es_glDeleteQueries");
-void glBeginQuery(GLenum target, GLuint id) AliasExport("gl4es_glBeginQuery");
-void glEndQuery(GLenum target) AliasExport("gl4es_glEndQuery");
-void glGetQueryiv(GLenum target, GLenum pname, GLint* params) AliasExport("gl4es_glGetQueryiv");
-void glGetQueryObjectiv(GLuint id, GLenum pname, GLint* params) AliasExport("gl4es_glGetQueryObjectiv");
-void glGetQueryObjectuiv(GLuint id, GLenum pname, GLuint* params) AliasExport("gl4es_glGetQueryObjectuiv");
-void glQueryCounter(GLuint id, GLenum target) AliasExport("gl4es_glQueryCounter");
-void glGetQueryObjecti64v(GLuint id, GLenum pname, GLint64 * params) AliasExport("gl4es_glGetQueryObjecti64v");
-void glGetQueryObjectui64v(GLuint id, GLenum pname, GLuint64 * params) AliasExport("gl4es_glGetQueryObjectui64v");
+AliasExport(void,glGenQueries,,(GLsizei n, GLuint * ids));
+AliasExport(GLboolean,glIsQuery,,(GLuint id));
+AliasExport(void,glDeleteQueries,,(GLsizei n, const GLuint* ids));
+AliasExport(void,glBeginQuery,,(GLenum target, GLuint id));
+AliasExport(void,glEndQuery,,(GLenum target));
+AliasExport(void,glGetQueryiv,,(GLenum target, GLenum pname, GLint* params));
+AliasExport(void,glGetQueryObjectiv,,(GLuint id, GLenum pname, GLint* params));
+AliasExport(void,glGetQueryObjectuiv,,(GLuint id, GLenum pname, GLuint* params));
+AliasExport(void,glQueryCounter,,(GLuint id, GLenum target));
+AliasExport(void,glGetQueryObjecti64v,,(GLuint id, GLenum pname, GLint64 * params));
+AliasExport(void,glGetQueryObjectui64v,,(GLuint id, GLenum pname, GLuint64 * params));
 
 // ARB wrapper
-void glGenQueriesARB(GLsizei n, GLuint * ids) AliasExport("gl4es_glGenQueries");
-GLboolean glIsQueryARB(GLuint id) AliasExport("gl4es_glIsQuery");
-void glDeleteQueriesARB(GLsizei n, const GLuint* ids) AliasExport("gl4es_glDeleteQueries");
-void glBeginQueryARB(GLenum target, GLuint id) AliasExport("gl4es_glBeginQuery");
-void glEndQueryARB(GLenum target) AliasExport("gl4es_glEndQuery");
-void glGetQueryivARB(GLenum target, GLenum pname, GLint* params) AliasExport("gl4es_glGetQueryiv");
-void glGetQueryObjectivARB(GLuint id, GLenum pname, GLint* params) AliasExport("gl4es_glGetQueryObjectiv");
-void glGetQueryObjectuivARB(GLuint id, GLenum pname, GLuint* params) AliasExport("gl4es_glGetQueryObjectuiv");
-void glQueryCounterARB(GLuint id, GLenum target) AliasExport("gl4es_glQueryCounter");
+AliasExport(void,glGenQueries,ARB,(GLsizei n, GLuint * ids));
+AliasExport(GLboolean,glIsQuery,ARB,(GLuint id));
+AliasExport(void,glDeleteQueries,ARB,(GLsizei n, const GLuint* ids));
+AliasExport(void,glBeginQuery,ARB,(GLenum target, GLuint id));
+AliasExport(void,glEndQuery,ARB,(GLenum target));
+AliasExport(void,glGetQueryiv,ARB,(GLenum target, GLenum pname, GLint* params));
+AliasExport(void,glGetQueryObjectiv,ARB,(GLuint id, GLenum pname, GLint* params));
+AliasExport(void,glGetQueryObjectuiv,ARB,(GLuint id, GLenum pname, GLuint* params));
+AliasExport(void,glQueryCounter,ARB,(GLuint id, GLenum target));

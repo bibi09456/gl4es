@@ -88,7 +88,7 @@ void tex_coord_matrix(GLfloat *tex, GLsizei len, const GLfloat* mat) {
  * Apply texture matrix if not identity 
  * Or some NPOT texture used
  */
-int inline tex_setup_needchange(GLuint itarget) {
+int tex_setup_needchange(GLuint itarget) {
     if(hardext.esversion>1) return 0; // no text ajustement on ES2
 
     GLuint texunit = glstate->texture.client;
@@ -173,7 +173,7 @@ gltexture_t* gl4es_getTexture(GLenum target, GLuint texture) {
     }
     return tex;
 }
-void gl4es_glBindTexture(GLenum target, GLuint texture) {
+void APIENTRY_GL4ES gl4es_glBindTexture(GLenum target, GLuint texture) {
     noerrorShim();
     DBG(printf("glBindTexture(%s, %u), active=%i, client=%i, list.active=%p (compiling=%d, pending=%d)\n", PrintEnum(target), texture, glstate->texture.active, glstate->texture.client, glstate->list.active, glstate->list.compiling, glstate->list.pending);)
     if ((target!=GL_PROXY_TEXTURE_2D) && glstate->list.compiling && glstate->list.active && !glstate->list.pending) {
@@ -287,7 +287,7 @@ GLenum get_texture_wrap_t(gltexture_t* texture, glsampler_t *sampler)
     return get_texture_wrap(sampler->wrap_t, texture);
 }
 // TODO: also glTexParameterf(v)?
-void gl4es_glTexParameterfv(GLenum target, GLenum pname, const GLfloat *params) {
+void APIENTRY_GL4ES gl4es_glTexParameterfv(GLenum target, GLenum pname, const GLfloat *params) {
     DBG(printf("glTexParameterfv(%s, %s, [%f(%s)...])\n", PrintEnum(target), PrintEnum(pname), params[0], PrintEnum(params[0]));)
     if(!glstate->list.pending) {
         PUSH_IF_COMPILING(glTexParameterfv);
@@ -315,7 +315,7 @@ void gl4es_glTexParameterfv(GLenum target, GLenum pname, const GLfloat *params) 
                 if(texture->mipmap_auto == ((param)?1:0))
                     return; // same value...
                 texture->mipmap_auto = (param)?1:0;
-                if(hardext.esversion>1 && param) {
+                if(hardext.esversion>1) {
                     /*if(texture->valid) {
                         // force regeneration, if possible
                         FLUSH_BEGINEND;
@@ -346,15 +346,15 @@ void gl4es_glTexParameterfv(GLenum target, GLenum pname, const GLfloat *params) 
     }
 }
 
-void gl4es_glTexParameterf(GLenum target, GLenum pname, GLfloat param) {
+void APIENTRY_GL4ES gl4es_glTexParameterf(GLenum target, GLenum pname, GLfloat param) {
     gl4es_glTexParameterfv(target, pname, &param);
 }
-void gl4es_glTexParameteri(GLenum target, GLenum pname, GLint param) {
+void APIENTRY_GL4ES gl4es_glTexParameteri(GLenum target, GLenum pname, GLint param) {
     GLfloat fparam = param;
     gl4es_glTexParameterfv(target, pname, &fparam);
 }
 
-void gl4es_glTexParameteriv(GLenum target, GLenum pname, const GLint * params) {
+void APIENTRY_GL4ES gl4es_glTexParameteriv(GLenum target, GLenum pname, const GLint * params) {
     GLfloat fparams[4];
     fparams[0] = *params;
     if(pname==GL_TEXTURE_BORDER_COLOR)
@@ -363,7 +363,7 @@ void gl4es_glTexParameteriv(GLenum target, GLenum pname, const GLint * params) {
     gl4es_glTexParameterfv(target, pname, fparams);
 }
 
-void gl4es_glDeleteTextures(GLsizei n, const GLuint *textures) {
+void APIENTRY_GL4ES gl4es_glDeleteTextures(GLsizei n, const GLuint *textures) {
     DBG(printf("glDeleteTextures(%d, %p {%d...})\n", n, textures, n?textures[0]:-1);)
     if(!glstate) return;
     FLUSH_BEGINEND;
@@ -424,7 +424,7 @@ void gl4es_glDeleteTextures(GLsizei n, const GLuint *textures) {
     }
 }
 
-void gl4es_glGenTextures(GLsizei n, GLuint * textures) {
+void APIENTRY_GL4ES gl4es_glGenTextures(GLsizei n, GLuint * textures) {
     DBG(printf("glGenTextures(%d, %p)\n", n, textures);)
     if (n<=0) 
         return;
@@ -469,12 +469,12 @@ void gl4es_glGenTextures(GLsizei n, GLuint * textures) {
     }
 }
 
-GLboolean gl4es_glAreTexturesResident(GLsizei n, const GLuint *textures, GLboolean *residences) {
+GLboolean APIENTRY_GL4ES gl4es_glAreTexturesResident(GLsizei n, const GLuint *textures, GLboolean *residences) {
     noerrorShim();
     return true;
 }
 
-void gl4es_glGetTexLevelParameterfv(GLenum target, GLint level, GLenum pname, GLfloat *params) {
+void APIENTRY_GL4ES gl4es_glGetTexLevelParameterfv(GLenum target, GLint level, GLenum pname, GLfloat *params) {
     DBG(printf("glGetTexLevelParameteriv(%s, %d, %s, %p)\n", PrintEnum(target), level, PrintEnum(pname), params);)
     // simplification: (mostly) not taking "target" into account here
     FLUSH_BEGINEND;
@@ -596,7 +596,7 @@ void gl4es_glGetTexLevelParameterfv(GLenum target, GLint level, GLenum pname, GL
     }
 }
 
-void gl4es_glActiveTexture( GLenum texture ) {
+void APIENTRY_GL4ES gl4es_glActiveTexture( GLenum texture ) {
     DBG(printf("glActiveTexture(%s)\n", PrintEnum(texture));)
     int tmu = texture - GL_TEXTURE0;
     if (glstate->list.pending) {
@@ -623,7 +623,7 @@ void gl4es_glActiveTexture( GLenum texture ) {
     noerrorShim();
 }
 
-void gl4es_glClientActiveTexture( GLenum texture ) {
+void APIENTRY_GL4ES gl4es_glClientActiveTexture( GLenum texture ) {
     DBG(printf("glClientActiveTexture(%s)\n", PrintEnum(texture));)
     int tmu = texture - GL_TEXTURE0;
     if ((tmu<0) || (tmu >= hardext.maxtex)) {
@@ -640,7 +640,7 @@ void gl4es_glClientActiveTexture( GLenum texture ) {
     errorGL();
 }
 
-void gl4es_glPixelStorei(GLenum pname, GLint param) {
+void APIENTRY_GL4ES gl4es_glPixelStorei(GLenum pname, GLint param) {
     DBG(printf("glPixelStorei(%s, %d)\n", PrintEnum(pname), param);)
     // TODO: add to glGetIntegerv?
 
@@ -762,13 +762,21 @@ void realize_active() {
     gles_glActiveTexture(GL_TEXTURE0 + glstate->gleshard->active);
 }
 
-void realize_1texture(GLenum target, int TMU, gltexture_t* tex, glsampler_t* sampler)
+void realize_1texture(GLenum target, int wantedTMU, gltexture_t* tex, glsampler_t* sampler)
 {
-    DBG(printf("realize_1texture(%s, %d, %p[%u], %p)\n", PrintEnum(target), TMU, tex, tex->glname, sampler);)
+    DBG(printf("realize_1texture(%s, %d, %p[%u], %p)\n", PrintEnum(target), wantedTMU, tex, tex->glname, sampler);)
     LOAD_GLES(glActiveTexture);
     LOAD_GLES(glTexParameteri);
+    LOAD_GLES(glBindTexture);
     // check sampler stuff
     if(!sampler) sampler = &tex->sampler;
+    GLuint oldtex = 0;
+    int TMU = (wantedTMU==-1)?glstate->gleshard->active:wantedTMU;
+    if(wantedTMU==-1) {
+        gltexture_t *bound = glstate->texture.bound[TMU][ENABLED_TEX2D];
+        oldtex = bound->glname;
+        if (oldtex!=tex->glname) gles_glBindTexture(GL_TEXTURE_2D, tex->glname);
+    }
     GLenum param;
     param = get_texture_min_filter(tex, sampler);
     if(tex->actual.min_filter!=param) {
@@ -810,6 +818,9 @@ void realize_1texture(GLenum target, int TMU, gltexture_t* tex, glsampler_t* sam
         gles_glTexParameteri(target, GL_TEXTURE_WRAP_T, param);
         tex->actual.wrap_t=param;
     }
+    if(wantedTMU==-1) {
+        if (oldtex!=tex->glname) gles_glBindTexture(GL_TEXTURE_2D, oldtex);
+    }
 }
 
 void realize_textures(int drawing) {
@@ -841,7 +852,6 @@ void realize_textures(int drawing) {
         GLenum target = map_tex_target(to_target(tgt));
         gltexture_t *tex = glstate->texture.bound[i][tgt];
         GLuint t = tex->glname;
-
         if(tgt!=ENABLED_CUBE_MAP) {// CUBE MAP are immediatly bound
 #ifdef TEXSTREAM
             if(glstate->bound_stream[i]) {
@@ -893,7 +903,7 @@ void realize_textures(int drawing) {
             if((globals4es.automipmap==3) || ((globals4es.automipmap==1) && (tex->mipmap_auto==0)) || (tex->compressed && (tex->mipmap_auto==0)))
                 tex->mipmap_need = 0;
             else
-                tex->mipmap_need = (is_mipmap_needed(&tex->sampler) && (hardext.esversion!=1))?1:0;
+                tex->mipmap_need = (is_mipmap_needed(&tex->sampler) && (hardext.esversion!=1) && !tex->npot)?1:0;
             if(tex->mipmap_need && !tex->mipmap_done) {
                 if(!tex->mipmap_auto) {
                     // should check if glGenerateMipmap exist, and fall back to no mipmap if not
@@ -909,19 +919,19 @@ void realize_textures(int drawing) {
 }
 
 //Direct wrapper
-void glBindTexture(GLenum target, GLuint texture) AliasExport("gl4es_glBindTexture");
-void glGenTextures(GLsizei n, GLuint * textures) AliasExport("gl4es_glGenTextures");
-void glDeleteTextures(GLsizei n, const GLuint * textures) AliasExport("gl4es_glDeleteTextures");
-void glTexParameteri(GLenum target, GLenum pname, GLint param) AliasExport("gl4es_glTexParameteri");
-void glTexParameterf(GLenum target, GLenum pname, GLfloat param) AliasExport("gl4es_glTexParameterf");
-void glTexParameterfv(GLenum target, GLenum pname, const GLfloat * params) AliasExport("gl4es_glTexParameterfv");
-void glTexParameteriv(GLenum target, GLenum pname, const GLint * params) AliasExport("gl4es_glTexParameteriv");
-void glGetTexLevelParameterfv(GLenum target, GLint level, GLenum pname, GLint *params) AliasExport("gl4es_glGetTexLevelParameterfv");
-GLboolean glAreTexturesResident(GLsizei n, const GLuint *textures, GLboolean *residences) AliasExport("gl4es_glAreTexturesResident");
-void glActiveTexture( GLenum texture ) AliasExport("gl4es_glActiveTexture");
-void glClientActiveTexture( GLenum texture ) AliasExport("gl4es_glClientActiveTexture");
-void glPixelStorei(GLenum pname, GLint param) AliasExport("gl4es_glPixelStorei");
+AliasExport(void,glBindTexture,,(GLenum target, GLuint texture));
+AliasExport(void,glGenTextures,,(GLsizei n, GLuint * textures));
+AliasExport(void,glDeleteTextures,,(GLsizei n, const GLuint * textures));
+AliasExport(void,glTexParameteri,,(GLenum target, GLenum pname, GLint param));
+AliasExport(void,glTexParameterf,,(GLenum target, GLenum pname, GLfloat param));
+AliasExport(void,glTexParameterfv,,(GLenum target, GLenum pname, const GLfloat * params));
+AliasExport(void,glTexParameteriv,,(GLenum target, GLenum pname, const GLint * params));
+AliasExport(void,glGetTexLevelParameterfv,,(GLenum target, GLint level, GLenum pname, GLint *params));
+AliasExport(GLboolean,glAreTexturesResident,,(GLsizei n, const GLuint *textures, GLboolean *residences));
+AliasExport(void,glActiveTexture,,( GLenum texture ));
+AliasExport(void,glClientActiveTexture,,( GLenum texture ));
+AliasExport(void,glPixelStorei,,(GLenum pname, GLint param));
 
 //ARB mapper
-void glActiveTextureARB(GLenum texture) AliasExport("gl4es_glActiveTexture");
-void glClientActiveTextureARB(GLenum texture) AliasExport("gl4es_glClientActiveTexture");
+AliasExport(void,glActiveTexture,ARB,(GLenum texture));
+AliasExport(void,glClientActiveTexture,ARB,(GLenum texture));

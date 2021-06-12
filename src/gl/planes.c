@@ -5,7 +5,7 @@
 #include "matrix.h"
 #include "matvec.h"
 
-void gl4es_glClipPlanef(GLenum plane, const GLfloat *equation)
+void APIENTRY_GL4ES gl4es_glClipPlanef(GLenum plane, const GLfloat *equation)
 {
     /*
         When glClipPlane is called, 
@@ -30,4 +30,4 @@ void gl4es_glClipPlanef(GLenum plane, const GLfloat *equation)
     }
 }
 
-void glClipPlanef(GLenum pname, const GLfloat* params) AliasExport("gl4es_glClipPlanef");
+AliasExport(void,glClipPlanef,,(GLenum pname, const GLfloat* params));

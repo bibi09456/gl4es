@@ -12,7 +12,7 @@
 void glXStub(void *x, ...) {
     return;
 }
-
+void *gl4es_glXGetProcAddress(const char *name) __attribute__((visibility("default")));
 void *gl4es_glXGetProcAddress(const char *name) {
 
 #ifndef NOX11
@@ -73,8 +73,8 @@ void *gl4es_glXGetProcAddress(const char *name) {
     return gl4es_GetProcAddress(name);
 }
 #ifdef AMIGAOS4
-//void* aglGetProcAddress(const char* name) AliasExport("gl4es_glXGetProcAddress");
+//AliasExport(void*,aglGetProcAddress,,(const char* name));
 #else
-void* glXGetProcAddress(const char* name) AliasExport("gl4es_glXGetProcAddress");
-void* glXGetProcAddressARB(const char* name) AliasExport("gl4es_glXGetProcAddress");
+AliasExport(void*,glXGetProcAddress,,(const char* name));
+AliasExport(void*,glXGetProcAddress,ARB,(const char* name));
 #endif

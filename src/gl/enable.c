@@ -65,7 +65,7 @@ void change_vao_texcoord(int tmu, bool enable)
 #define GL_TEXTURE_STREAM_IMG                                   0x8C0D     
 #endif
 
-static void proxy_glEnable(GLenum cap, bool enable, void (*next)(GLenum)) {
+static void proxy_glEnable(GLenum cap, bool enable, void (APIENTRY_GLES *next)(GLenum)) {
     #define proxy_GO(constant, name) \
         case constant: if(glstate->enable.name != enable) {FLUSH_BEGINEND; glstate->enable.name = enable; next(cap);} break
     #define proxy_GOFPE(constant, name, fct) \
@@ -267,7 +267,7 @@ static void proxy_glEnable(GLenum cap, bool enable, void (*next)(GLenum)) {
     #undef clientGO
 }
 
-void gl4es_glEnable(GLenum cap) {
+void APIENTRY_GL4ES gl4es_glEnable(GLenum cap) {
     DBG(printf("glEnable(%s), glstate->list.pending=%d\n", PrintEnum(cap), glstate->list.pending);)
     if(!glstate->list.pending) {
 	    PUSH_IF_COMPILING(glEnable)
@@ -285,9 +285,9 @@ void gl4es_glEnable(GLenum cap) {
     LOAD_GLES(glEnable);
     proxy_glEnable(cap, true, gles_glEnable);
 }
-void glEnable(GLenum cap) AliasExport("gl4es_glEnable");
+AliasExport(void,glEnable,,(GLenum cap));
 
-void gl4es_glDisable(GLenum cap) {
+void APIENTRY_GL4ES gl4es_glDisable(GLenum cap) {
     DBG(printf("glDisable(%s), glstate->list.pending=%d\n", PrintEnum(cap), glstate->list.pending);)
     if(!glstate->list.pending) {
 	    PUSH_IF_COMPILING(glDisable)
@@ -306,9 +306,9 @@ void gl4es_glDisable(GLenum cap) {
     LOAD_GLES(glDisable);
     proxy_glEnable(cap, false, gles_glDisable);
 }
-void glDisable(GLenum cap) AliasExport("gl4es_glDisable");
+AliasExport(void,glDisable,,(GLenum cap));
 
-void gl4es_glEnableClientState(GLenum cap) {
+void APIENTRY_GL4ES gl4es_glEnableClientState(GLenum cap) {
     DBG(printf("glEnableClientState(%s), list.begin=%dn", PrintEnum(cap), glstate->list.begin);)
     ERROR_IN_BEGIN
     // should flush for now... to be optimized later!
@@ -316,9 +316,9 @@ void gl4es_glEnableClientState(GLenum cap) {
         gl4es_flush();*/
     proxy_glEnable(cap, true, fpe_glEnableClientState);
 }
-void glEnableClientState(GLenum cap) AliasExport("gl4es_glEnableClientState");
+AliasExport(void,glEnableClientState,,(GLenum cap));
 
-void gl4es_glDisableClientState(GLenum cap) {
+void APIENTRY_GL4ES gl4es_glDisableClientState(GLenum cap) {
     DBG(printf("glDisableClientState(%s), list.begin=%d\n", PrintEnum(cap), glstate->list.begin);)
     ERROR_IN_BEGIN
     // should flush for now... to be optimized later!
@@ -326,7 +326,7 @@ void gl4es_glDisableClientState(GLenum cap) {
         gl4es_flush();*/
     proxy_glEnable(cap, false, fpe_glDisableClientState);
 }
-void glDisableClientState(GLenum cap) AliasExport("gl4es_glDisableClientState");
+AliasExport(void,glDisableClientState,,(GLenum cap));
 
 
 #define isenabled(what, where) \
@@ -334,7 +334,7 @@ void glDisableClientState(GLenum cap) AliasExport("gl4es_glDisableClientState");
 #define clientisenabled(what, where) \
     case what: return glstate->vao->where
     
-GLboolean gl4es_glIsEnabled(GLenum cap) {
+GLboolean APIENTRY_GL4ES gl4es_glIsEnabled(GLenum cap) {
     DBG(printf("glIsEnabed(%s), list.begin=%d, list.compiling=%d, list.pending=%d\n", PrintEnum(cap), glstate->list.begin, glstate->list.compiling, glstate->list.pending);)
     if(glstate->list.begin) {errorShim(GL_INVALID_OPERATION); return GL_FALSE;}
     if(glstate->list.compiling) {errorShim(GL_INVALID_OPERATION); return GL_FALSE;}
@@ -423,4 +423,4 @@ GLboolean gl4es_glIsEnabled(GLenum cap) {
 }
 #undef isenabled
 #undef clientisenabled
-GLboolean glIsEnabled(GLenum cap) AliasExport("gl4es_glIsEnabled");
+AliasExport(GLboolean,glIsEnabled,,(GLenum cap));

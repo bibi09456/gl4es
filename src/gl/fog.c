@@ -8,7 +8,7 @@
 #include "matrix.h"
 #include "matvec.h"
 
-void gl4es_glFogfv(GLenum pname, const GLfloat* params) {
+void APIENTRY_GL4ES gl4es_glFogfv(GLenum pname, const GLfloat* params) {
 
     if (glstate->list.active)
         if (glstate->list.compiling) {
@@ -70,20 +70,20 @@ void gl4es_glFogfv(GLenum pname, const GLfloat* params) {
     errorGL();
 }
 
-void gl4es_glFogf(GLenum pname, GLfloat param) {
+void APIENTRY_GL4ES gl4es_glFogf(GLenum pname, GLfloat param) {
     gl4es_glFogfv(pname, &param);
 }
 
-void gl4es_glFogCoordd(GLdouble coord) {
+void APIENTRY_GL4ES gl4es_glFogCoordd(GLdouble coord) {
     gl4es_glFogCoordf(coord);
 }
-void gl4es_glFogCoorddv(const GLdouble *coord) {
+void APIENTRY_GL4ES gl4es_glFogCoorddv(const GLdouble *coord) {
     gl4es_glFogCoordf(*coord);
 }
-void gl4es_glFogCoordfv(const GLfloat *coord) {
+void APIENTRY_GL4ES gl4es_glFogCoordfv(const GLfloat *coord) {
     gl4es_glFogCoordf(*coord);
 }
-void gl4es_glFogCoordf(GLfloat coord) {
+void APIENTRY_GL4ES gl4es_glFogCoordf(GLfloat coord) {
     if (glstate->list.active) {
         if(glstate->list.pending)
             gl4es_flush();
@@ -101,16 +101,16 @@ void gl4es_glFogCoordf(GLfloat coord) {
 }
 
 
-void glFogfv(GLenum pname, const GLfloat* params) AliasExport("gl4es_glFogfv");
-void glFogf(GLenum pname, GLfloat param) AliasExport("gl4es_glFogf");
-void glFogCoordd(GLdouble coord) AliasExport("gl4es_glFogCoordd");
-void glFogCoorddv(const GLdouble *coord) AliasExport("gl4es_glFogCoorddv");
-void glFogCoordf(GLfloat coord) AliasExport("gl4es_glFogCoordf");
-void glFogCoordfv(const GLfloat *coord) AliasExport("gl4es_glFogCoordfv");
+AliasExport(void,glFogfv,,(GLenum pname, const GLfloat* params));
+AliasExport(void,glFogf,,(GLenum pname, GLfloat param));
+AliasExport_D(void,glFogCoordd,,(GLdouble coord));
+AliasExport(void,glFogCoorddv,,(const GLdouble *coord));
+AliasExport(void,glFogCoordf,,(GLfloat coord));
+AliasExport(void,glFogCoordfv,,(const GLfloat *coord));
 
-void glFogfvEXT(GLenum pname, const GLfloat* params) AliasExport("gl4es_glFogfv");
-void glFogfEXT(GLenum pname, GLfloat param) AliasExport("gl4es_glFogf");
-void glFogCoorddEXT(GLdouble coord) AliasExport("gl4es_glFogCoordd");
-void glFogCoorddvEXT(const GLdouble *coord) AliasExport("gl4es_glFogCoorddv");
-void glFogCoordfEXT(GLfloat coord) AliasExport("gl4es_glFogCoordf");
-void glFogCoordfvEXT(const GLfloat *coord) AliasExport("gl4es_glFogCoordfv");
+AliasExport(void,glFogfv,EXT,(GLenum pname, const GLfloat* params));
+AliasExport(void,glFogf,EXT,(GLenum pname, GLfloat param));
+AliasExport_D(void,glFogCoordd,EXT,(GLdouble coord));
+AliasExport(void,glFogCoorddv,EXT,(const GLdouble *coord));
+AliasExport(void,glFogCoordf,EXT,(GLfloat coord));
+AliasExport(void,glFogCoordfv,EXT,(const GLfloat *coord));
