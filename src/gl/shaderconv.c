@@ -699,7 +699,6 @@ char* ConvertShader(const char* pEntry, int isVertex, shaderconv_need_t *need)
           if((Part_Tmp = strstr(Tmp, builtin_attrib[i].glname))) {
               if (!strcmp(builtin_attrib[i].glname, "gl_Vertex") && !strncmp(Part_Tmp, "gl_VertexID", 11)) {
                   // attempt to recognize gl_VertexID as gl_Vertex?
-                  printf("Detected attempt to recognize gl_VertexID as gl_Vertex\n");
                   continue;
               }
               
