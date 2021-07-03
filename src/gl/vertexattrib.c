@@ -170,6 +170,7 @@ void APIENTRY_GL4ES gl4es_glVertexAttribDivisor(GLuint index, GLuint divisor) {
 
 AliasExport(void,glVertexAttribPointer,,(GLuint index, GLint size, GLenum type, GLboolean normalized, GLsizei stride, const GLvoid * pointer));
 AliasExport(void,glVertexAttribIPointer,,(GLuint index, GLint size, GLenum type, GLsizei stride, const GLvoid * pointer));
+AliasExport(void,glVertexAttribIPointer,EXT,(GLuint index, GLint size, GLenum type, GLsizei stride, const GLvoid * pointer));
 AliasExport(void,glEnableVertexAttribArray,,(GLuint index));
 AliasExport(void,glDisableVertexAttribArray,,(GLuint index));
 AliasExport(void,glVertexAttrib4f,,(GLuint index, GLfloat v0, GLfloat v1, GLfloat v2, GLfloat v3));
