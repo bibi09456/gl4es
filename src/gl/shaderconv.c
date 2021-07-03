@@ -695,7 +695,14 @@ char* ConvertShader(const char* pEntry, int isVertex, shaderconv_need_t *need)
       // check for builtin OpenGL attributes...
       int n = sizeof(builtin_attrib)/sizeof(builtin_attrib_t);
       for (int i=0; i<n; i++) {
-          if(strstr(Tmp, builtin_attrib[i].glname)) {
+          char *Part_Tmp;
+          if((Part_Tmp = strstr(Tmp, builtin_attrib[i].glname))) {
+              if (!strcmp(builtin_attrib[i].glname, "gl_Vertex") && !strncmp(Part_Tmp, "gl_VertexID", 11)) {
+                  // attempt to recognize gl_VertexID as gl_Vertex?
+                  printf("Detected attempt to recognize gl_VertexID as gl_Vertex\n");
+                  continue;
+              }
+              
               // ok, this attribute is used
               // replace gl_name by _gl4es_ one
               Tmp = InplaceReplace(Tmp, &tmpsize, builtin_attrib[i].glname, builtin_attrib[i].name);
