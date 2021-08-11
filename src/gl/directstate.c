@@ -366,7 +366,7 @@ void APIENTRY_GL4ES gl4es_glEnableClientStateIndexed(GLenum array, GLuint index)
         errorShim(GL_INVALID_ENUM);
     }
 }
-AliasDecl(void,gl4es_glEnableClientStatei,(GLenum array, GLuint index),gl4es_glEnableClientStateIndexed)
+AliasDecl(void,gl4es_glEnableClientStatei,(GLenum array, GLuint index),gl4es_glEnableClientStateIndexed);
 
 void APIENTRY_GL4ES gl4es_glDisableClientStateIndexed(GLenum array, GLuint index) {
     DBG(printf("glDisableClientStateIndexed(%s, %d)\n", PrintEnum(array), index);)
