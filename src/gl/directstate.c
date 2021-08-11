@@ -366,11 +366,7 @@ void APIENTRY_GL4ES gl4es_glEnableClientStateIndexed(GLenum array, GLuint index)
         errorShim(GL_INVALID_ENUM);
     }
 }
-#ifndef __APPLE__
-AliasDecl(void,gl4es_glEnableClientStatei,(GLenum array, GLuint index),gl4es_glEnableClientStateIndexed);
-#else
-void gl4es_glEnableClientStatei(GLenum array, GLuint index) { gl4es_glEnableClientStateIndexed(array, index); }
-#endif
+AliasDecl(void,gl4es_glEnableClientStatei,(GLenum array, GLuint index),gl4es_glEnableClientStateIndexed)
 
 void APIENTRY_GL4ES gl4es_glDisableClientStateIndexed(GLenum array, GLuint index) {
     DBG(printf("glDisableClientStateIndexed(%s, %d)\n", PrintEnum(array), index);)
@@ -384,12 +380,7 @@ void APIENTRY_GL4ES gl4es_glDisableClientStateIndexed(GLenum array, GLuint index
         errorShim(GL_INVALID_ENUM);
     }
 }
-#ifndef __APPLE__
 AliasDecl(void,gl4es_glDisableClientStatei,(GLenum array, GLuint index),gl4es_glDisableClientStateIndexed);
-#else
-void gl4es_glDisableClientStatei(GLenum array, GLuint index) { gl4es_glDisableClientStateIndexed(array, index); }
-#endif
-
 
 void APIENTRY_GL4ES gl4es_glEnableVertexArray(GLuint vaobj, GLenum array) {
     DBG(printf("glEnableVertexArray(%d, %s)\n", vaobj, PrintEnum(array));)
