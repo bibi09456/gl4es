@@ -203,6 +203,8 @@ void initialize_gl4es() {
 
     SHUT_LOGD("Using GLES %s backend\n", (globals4es.es==1)?"1.1":"2.0");
 
+    env(LIBGL_NOSHADERCONV, globals4es.noshaderconv, "Disable shaderconv, only changing #version 100->110 -> 120, 130->150 -> 330");
+
     env(LIBGL_NODEPTHTEX, globals4es.nodepthtex, "Disable usage of Depth Textures");
 
     const char* env_drmcard = GetEnvVar("LIBGL_DRMCARD");

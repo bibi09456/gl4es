@@ -171,11 +171,36 @@ void APIENTRY_GL4ES gl4es_glShaderSource(GLuint shader, GLsizei count, const GLc
     }
     LOAD_GLES2(glShaderSource);
     if (gles_glShaderSource) {
+        if (globals4es.noshaderconv) {
+            // are there #version?
+            if (!strncmp(glshader->source, "#version ", 9)) {
+                glshader->converted = strdup(glshader->source);
+                if (glshader->converted[9] == '1') {
+                    if (glshader->converted[10] - '0' < 2) {
+                        // 100, 110 -> 120
+                        glshader->converted[10] = '2';
+                    } else if (glshader->converted[10] - '0' < 6) {
+                        // 130, 140, 150 -> 330
+                        glshader->converted[9] = glshader->converted[10] = '3';
+                    }
+                }
+                // remove "core", is it safe?
+                if (!strncmp(&glshader->converted[13], "core", 4)) {
+                    strncpy(&glshader->converted[13], "\n//c", 4);
+                }
+            } else {
+                glshader->converted = calloc(1, strlen(glshader->source) + 13);
+                strcpy(glshader->converted, "#version 120\n");
+                strcpy(&glshader->converted[13], strdup(glshader->source));
+            }
+        } else {
+
         // adapt shader if needed (i.e. not an es2 context and shader is not #version 100)
         if(glstate->glsl->es2 && !strncmp(glshader->source, "#version 100", 12))
             glshader->converted = strdup(glshader->source);
         else
             glshader->converted = ConvertShader(glshader->source, glshader->type==GL_VERTEX_SHADER?1:0, &glshader->need);
+        }
         // send source to GLES2 hardware if any
         gles_glShaderSource(shader, 1, (const GLchar * const*)((glshader->converted)?(&glshader->converted):(&glshader->source)), NULL);
         errorGL();

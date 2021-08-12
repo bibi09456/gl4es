@@ -59,6 +59,7 @@ typedef struct _globals4es {
  int blitfullscreen;    // a "fullscreen" blit to FB0 means SwapBuffers
  int notexarray;
  int nodepthtex;
+ int noshaderconv;
  int logshader;
  int shadernogles;
  int floattex;
