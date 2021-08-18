@@ -17,7 +17,7 @@
 
 KHASH_MAP_IMPL_INT(shaderlist, shader_t *);
 
-void glBindFragDataLocation(GLuint program, GLuint colorNumber, const char * name) {
+void APIENTRY_GL4ES gl4es_glBindFragDataLocation(GLuint program, GLuint colorNumber, const char * name) {
     DBG(printf("glBindFragDataLocation(%d, %d, %s)\n", program, colorNumber, name);)
     LOAD_GLES2(glBindFragDataLocationEXT);
 
