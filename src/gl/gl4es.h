@@ -87,6 +87,8 @@ const GLubyte* APIENTRY_GL4ES gl4es_glGetStringi(GLenum name, GLuint index);
 
 void APIENTRY_GL4ES gl4es_glClampColor(GLenum target, GLenum clamp);
 
+void APIENTRY_GL4ES gl4es_glBindFragDataLocation(GLuint program, GLuint colorNumber, const char * name);
+
 void gl4es_flush(void);
 
 int adjust_vertices(GLenum mode, int nb);
