@@ -7,6 +7,7 @@
 #include "glstate.h"
 #include "loader.h"
 #include "shaderconv.h"
+#include "string_utils.h"
 
 //#define DEBUG
 #ifdef DEBUG
@@ -184,9 +185,13 @@ void APIENTRY_GL4ES gl4es_glShaderSource(GLuint shader, GLsizei count, const GLc
     LOAD_GLES2(glShaderSource);
     if (gles_glShaderSource) {
         if (globals4es.noshaderconv) {
+            char *source2 = strchr(glshader->source, '#');
+            if (!source2) {
+                source2 = glshader->source;
+            }
             // are there #version?
-            if (!strncmp(glshader->source, "#version ", 9)) {
-                glshader->converted = strdup(glshader->source);
+            if (!strncmp(source2, "#version ", 9)) {
+                glshader->converted = strdup(source2);
                 if (glshader->converted[9] == '1') {
                     if (glshader->converted[10] - '0' < 2) {
                         // 100, 110 -> 120
@@ -205,6 +210,17 @@ void APIENTRY_GL4ES gl4es_glShaderSource(GLuint shader, GLsizei count, const GLc
                 strcpy(glshader->converted, "#version 120\n");
                 strcpy(&glshader->converted[13], strdup(glshader->source));
             }
+            
+            int convertedLen = strlen(glshader->converted);
+            
+            // patch OptiFine 1.17.x
+            if (FindString(glshader->converted, "\nuniform mat4 textureMatrix = mat4(1.0);")) {
+                InplaceReplace(glshader->converted, &convertedLen, "\nuniform mat4 textureMatrix = mat4(1.0);", "\n#define textureMatrix mat4(1.0)");
+            }
+            
+            // some needed exts
+            const char* GL_EXT_blend_func_extended = "#extension GL_EXT_blend_func_extended : enable\n";
+            glshader->converted = InplaceInsert(GetLine(glshader->converted, 1), GL_EXT_blend_func_extended, glshader->converted, &convertedLen);
         } else {
 
         // adapt shader if needed (i.e. not an es2 context and shader is not #version 100)
