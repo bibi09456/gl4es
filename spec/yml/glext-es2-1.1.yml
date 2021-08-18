@@ -91,3 +91,6 @@ glVertexAttribPointer: [void, GLuint index, GLint size, GLenum type, GLboolean n
 glFogCoordf: [void, GLfloat coord]
 glFogCoordfv: [void, const GLfloat * coord]
 glFogCoordPointer: [void, GLenum type, GLsizei stride, const GLvoid * pointer]
+
+#GLES 3.0 ext
+glBindFragDataLocationEXT: [GLuint program, GLuint colorNumber, const char * name]

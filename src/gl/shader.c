@@ -432,6 +432,7 @@ void APIENTRY_GL4ES gl4es_glReleaseShaderCompiler(void) {
 
 // ========== GL_ARB_shader_objects ==============
 
+AliasExport(void,glBindFragDataLocation,,(GLuint program, GLuint colorNumber, const char * name));
 AliasExport(GLuint,glCreateShader,,(GLenum shaderType));
 AliasExport(void,glDeleteShader,,(GLuint shader));
 AliasExport(void,glCompileShader,,(GLuint shader));

@@ -2015,6 +2015,7 @@ packed_call_t* APIENTRY_GL4ES glCopyPackedCall(const packed_call_t *packed);
 #define glBindBuffer_PACKED PACKED_void_GLenum_GLuint
 #define glBindBuffer_INDEXED INDEXED_void_GLenum_GLuint
 #define glBindBuffer_FORMAT FORMAT_void_GLenum_GLuint
+#define glBindFragDataLocation_ARG_EXPAND GLuint program, GLuint color, const GLchar *name
 #define glBindFramebuffer_INDEX 7
 #define glBindFramebuffer_RETURN void
 #define glBindFramebuffer_ARG_NAMES target, framebuffer
@@ -3673,6 +3674,8 @@ void APIENTRY_GL4ES gl4es_glBindAttribLocation(glBindAttribLocation_ARG_EXPAND);
 typedef void (APIENTRY_GLES * glBindAttribLocation_PTR)(glBindAttribLocation_ARG_EXPAND);
 void APIENTRY_GL4ES gl4es_glBindBuffer(glBindBuffer_ARG_EXPAND);
 typedef void (APIENTRY_GLES * glBindBuffer_PTR)(glBindBuffer_ARG_EXPAND);
+void APIENTRY_GL4ES gl4es_glBindFragDataLocation(glBindFragDataLocation_ARG_EXPAND);
+typedef void (APIENTRY_GLES * glBindFragDataLocationEXT_PTR)(glBindFragDataLocation_ARG_EXPAND);
 void APIENTRY_GL4ES gl4es_glBindFramebuffer(glBindFramebuffer_ARG_EXPAND);
 typedef void (APIENTRY_GLES * glBindFramebuffer_PTR)(glBindFramebuffer_ARG_EXPAND);
 void APIENTRY_GL4ES gl4es_glBindRenderbuffer(glBindRenderbuffer_ARG_EXPAND);
