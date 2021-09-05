@@ -19,6 +19,10 @@ int proxy_width, proxy_height, proxy_intformat, maxTextureSize;
 
 void glBindFragDataLocationEXT(GLuint program, GLuint colorNumber, const char * name);
 
+// GL_ANGLE_multi_draw
+void glMultiDrawArraysANGLE(GLenum mode, const GLint * first, const GLsizei * count, GLsizei drawcount);
+void glMultiDrawElementsANGLE(GLenum mode, const GLsizei * count, GLenum type, const void ** indices, GLsizei primcount);
+
 // void(*gles_glDrawElementsBaseVertex)(GLenum mode, GLsizei count, GLenum type, const void *indices, GLint basevertex);
 void(*gles_glGetTexLevelParameteriv)(GLenum target, GLint level, GLenum pname, GLint *params);
 // void(*gles_glMultiDrawElementsBaseVertexEXT)(GLenum mode, const GLsizei *count, GLenum type, const void *const*indices, GLsizei drawcount, const GLint *basevertex);
@@ -240,4 +244,13 @@ void glTexImage2D(GLenum target, GLint level, GLint internalformat, GLsizei widt
     } else {
         gles_glTexImage2D(target, level, internalformat, width, height, border, format, type, data);
     }
+}
+
+// Use: GL_ANGLE_multi_draw
+void glMultiDrawArrays(GLenum mode, const GLint * first, const GLsizei * count, GLsizei drawcount) {
+    glMultiDrawArraysANGLE(mode, first, count, drawcount);
+}
+
+void glMultiDrawElements(GLenum mode, const GLsizei * count, GLenum type, const void ** indices, GLsizei primcount) {
+    glMultiDrawElementsANGLE(mode, count, type, indices, primcount);
 }

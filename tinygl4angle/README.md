@@ -29,6 +29,16 @@ A tiny OpenGL implemenation for Minecraft 1.17+ to run on [ANGLE](https://github
 		  <td>glMapBufferRange</td>
 		  <td></td>
 		</tr>
+		<tr>
+		  <td>glMultiDrawArrays</td>
+		  <td>glMultiDrawArraysANGLE</td>
+		  <td>GL_ANGLE_multi_draw</td>
+		</tr>
+		<tr>
+		  <td>glMultiDrawElements</td>
+		  <td>glMultiDrawElementsANGLE</td>
+		  <td>GL_ANGLE_multi_draw</td>
+		</tr>
 	  </tbody>
 	</table>
 
