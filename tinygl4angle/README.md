@@ -49,11 +49,10 @@ A tiny OpenGL implemenation for Minecraft 1.17+ to run on [ANGLE](https://github
 		<tr>
 		  <td>glTexImage2D</td>
 		  <td>emulate GL_PROXY_TEXTURE_*</td>
-
 		</tr>
 		<tr>
 		  <td>glShaderSource</td>
-		  <td>change `#version` value: 100,110 -> 120; 130,140,150 -> 330</td>
+		  <td>change #version value: 100,110 -> 120; 130,140,150 -> 330</td>
 		</tr>
 	  </tbody>
 	</table>
