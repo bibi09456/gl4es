@@ -279,7 +279,7 @@ void APIENTRY_GL4ES fpe_oldprogram(fpe_state_t* state) {
 
     glstate->fpe->vert = gl4es_glCreateShader(GL_VERTEX_SHADER);
     if(state->vertex_prg_id) {
-        gl4es_glShaderSource(glstate->fpe->vert, 1, fpe_CustomVertexShader(old_vtx->shader->source, state), NULL);
+        gl4es_glShaderSource(glstate->fpe->vert, 1, fpe_CustomVertexShader(old_vtx->shader->source, state, state->fragment_prg_id?0:1), NULL);
         gl4es_glCompileShader(glstate->fpe->vert);
         gl4es_glGetShaderiv(glstate->fpe->vert, GL_COMPILE_STATUS, &status);
         if(status!=GL_TRUE) {
@@ -339,7 +339,7 @@ void APIENTRY_GL4ES fpe_oldprogram(fpe_state_t* state) {
             printf("LIBGL: FPE ARB Program link failed: %s\n with vertex %s%s%s%s%s and fragment %s%s%s%s%s\n", 
                 buff, 
                 state->vertex_prg_id?"custom:\n":"default", state->vertex_prg_id?old_vtx->string:"", state->vertex_prg_id?"\nconverted:\n":"", state->vertex_prg_id?old_vtx->shader->source:"", state->vertex_prg_id?"\n":"", 
-                state->fragment_prg_id?"custom:\n":"default", state->vertex_prg_id?old_frg->string:"", state->fragment_prg_id?"\nconverted:\n":"", state->fragment_prg_id?old_vtx->shader->source:"", state->fragment_prg_id?"\n":"");
+                state->fragment_prg_id?"custom:\n":"default", state->fragment_prg_id?old_frg->string:"", state->fragment_prg_id?"\nconverted:\n":"", state->fragment_prg_id?old_frg->shader->source:"", state->fragment_prg_id?"\n":"");
         else
             printf("LIBGL: FPE ARB Program link failed: %s\n", buff);
     }
@@ -429,7 +429,7 @@ program_t* APIENTRY_GL4ES fpe_CustomShader(program_t* glprogram, fpe_state_t* st
     if(fpe->glprogram==NULL) {
         GLint status;
         fpe->vert = gl4es_glCreateShader(GL_VERTEX_SHADER);
-        gl4es_glShaderSource(fpe->vert, 1, fpe_CustomVertexShader(glprogram->last_vert->source, state), NULL);
+        gl4es_glShaderSource(fpe->vert, 1, fpe_CustomVertexShader(glprogram->last_vert->source, state, 0), NULL);
         gl4es_glCompileShader(fpe->vert);
         gl4es_glGetShaderiv(fpe->vert, GL_COMPILE_STATUS, &status);
         if(status!=GL_TRUE) {
