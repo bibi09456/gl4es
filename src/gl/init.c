@@ -202,8 +202,18 @@ void initialize_gl4es() {
     }
 
     SHUT_LOGD("Using GLES %s backend\n", (globals4es.es==1)?"1.1":"2.0");
-
-    env(LIBGL_NOSHADERCONV, globals4es.noshaderconv, "Disable shaderconv, only changing #version 100->110 -> 120, 130->150 -> 330");
+    switch(globals4es.noshaderconv = ReturnEnvVarInt("LIBGL_NOSHADERCONV")) {
+      default:
+      case 0:
+        SHUT_LOGD("Shaderconv enabled\n");
+        break;
+      case 1:
+        SHUT_LOGD("Shaderconv disabled, only changing #version 100->110 -> 120, 130->150 -> 330\n");
+        break;
+      case 2:
+        SHUT_LOGD("Shaderconv disabled, keep the original source\n");
+        break;
+    }
 
     env(LIBGL_NODEPTHTEX, globals4es.nodepthtex, "Disable usage of Depth Textures");
 

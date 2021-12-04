@@ -159,6 +159,11 @@ void APIENTRY_GL4ES gl4es_glCompileShader(GLuint shader) {
 
 void APIENTRY_GL4ES gl4es_glShaderSource(GLuint shader, GLsizei count, const GLchar * const *string, const GLint *length) {
     DBG(printf("glShaderSource(%d, %d, %p, %p)\n", shader, count, string, length);)
+    if(globals4es.noshaderconv==2){ // send source directly to GLES hardware
+        gles_glShaderSource(shader, count, string, length);
+        errorGL();
+        return;
+    }
     // sanity check
     if(count<=0) {
         errorShim(GL_INVALID_VALUE);
@@ -184,7 +189,7 @@ void APIENTRY_GL4ES gl4es_glShaderSource(GLuint shader, GLsizei count, const GLc
     }
     LOAD_GLES2(glShaderSource);
     if (gles_glShaderSource) {
-        if (globals4es.noshaderconv) {
+        if (globals4es.noshaderconv==1) {
             char *source2 = strchr(glshader->source, '#');
             if (!source2) {
                 source2 = glshader->source;
