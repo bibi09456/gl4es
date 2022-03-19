@@ -291,19 +291,19 @@ static const char* GLESHeader[] = {
 
 static const char* gl4es_transpose =
 "mat2 gl4es_transpose(mat2 m) {\n"
-" return mat2(m[0][0], m[0][1],\n"
-"             m[1][0], m[1][1]);\n"
+" return mat2(m[0][0], m[1][0],\n"
+"             m[0][1], m[1][1]);\n"
 "}\n"
 "mat3 gl4es_transpose(mat3 m) {\n"
-" return mat3(m[0][0], m[0][1], m[0][2],\n"
-"             m[1][0], m[1][1], m[1][2],\n"
-"             m[2][0], m[2][1], m[2][2]);\n"
+" return mat3(m[0][0], m[1][0], m[2][0],\n"
+"             m[0][1], m[1][1], m[2][1],\n"
+"             m[0][2], m[1][2], m[2][2]);\n"
 "}\n"
 "mat4 gl4es_transpose(mat4 m) {\n"
-" return mat4(m[0][0], m[0][1], m[0][2], m[0][3],\n"
-"             m[1][0], m[1][1], m[1][2], m[1][3],\n"
-"             m[2][0], m[2][1], m[2][2], m[2][3],\n"
-"             m[3][0], m[3][1], m[3][2], m[3][3]);\n"
+" return mat4(m[0][0], m[1][0], m[2][0], m[3][0],\n"
+"             m[0][1], m[1][1], m[2][1], m[3][1],\n"
+"             m[0][2], m[1][2], m[2][2], m[3][2],\n"
+"             m[0][3], m[1][3], m[2][3], m[3][3]);\n"
 "}\n";
 
 static const char* HackAltPow = 
@@ -451,7 +451,7 @@ char* ConvertShader(const char* pEntry, int isVertex, shaderconv_need_t *need)
   int maskbefore = 4|(isVertex?1:2);
   int maskafter = 8|(isVertex?1:2);
   if((globals4es.dbgshaderconv&maskbefore)==maskbefore) {
-    printf("Shader source%s:\n%s\n", pEntry, fpeShader?" (FPEShader generated)":"");
+    printf("Shader source%s:\n%s\n", fpeShader?" (FPEShader generated)":"", pEntry);
   }
   int comments = globals4es.comments;
   
