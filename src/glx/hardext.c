@@ -25,10 +25,12 @@ static int testGLSL(const char* version, int uniformLoc) {
     LOAD_GLES2(glCompileShader);
     LOAD_GLES2(glGetShaderiv);
     LOAD_GLES2(glDeleteShader);
+    LOAD_GLES(glGetError);
 
     GLuint shad = gles_glCreateShader(GL_VERTEX_SHADER);
     const char* shadTest[4] = {
         version,
+        "#extension require GL_IMG_uniform_buffer_object"
         "\n"
         "layout(location = 0) in vec4 vecPos;\n",
         uniformLoc?"layout(location = 0) uniform mat4 matMVP;\n":"uniform mat4 matMVP;\n",
@@ -49,6 +51,7 @@ static int testGLSL(const char* version, int uniformLoc) {
     }
     */
     gles_glDeleteShader(shad);
+    gles_glGetError();	// reset GL Error
 
     return compiled;
 }
@@ -59,6 +62,7 @@ static int testTextureCubeLod() {
     LOAD_GLES2(glCompileShader);
     LOAD_GLES2(glGetShaderiv);
     LOAD_GLES2(glDeleteShader);
+    LOAD_GLES(glGetError);
 
     GLuint shad = gles_glCreateShader(GL_FRAGMENT_SHADER);
     const char* shadTest[3] = {
@@ -76,6 +80,7 @@ static int testTextureCubeLod() {
     GLint compiled;
     gles_glGetShaderiv(shad, GL_COMPILE_STATUS, &compiled);
     gles_glDeleteShader(shad);
+    gles_glGetError(); // reset GL Error
 
     return compiled;
 }
@@ -357,7 +362,11 @@ void GetHardwareExtensions(int notest)
         gles_glGetIntegerv(GL_MAX_VERTEX_ATTRIBS, &hardext.maxvattrib);
         SHUT_LOGD("Max vertex attrib: %d\n", hardext.maxvattrib);
         S("GL_OES_standard_derivatives ", derivatives, 1);
+        S("GL_ARM_shader_framebuffer_fetch", shader_fbfetch, 1);
         S("GL_OES_get_program ", prgbinary, 1);
+        if(!hardext.prgbinary) {
+            S("GL_OES_get_program_binary ", prgbinary, 1);
+        }
         if(hardext.prgbinary) {
             gles_glGetIntegerv(GL_NUM_PROGRAM_BINARY_FORMATS_OES, &hardext.prgbin_n);
             SHUT_LOGD("Number of supported Program Binary Format: %d\n", hardext.prgbin_n);

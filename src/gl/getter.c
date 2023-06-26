@@ -815,8 +815,8 @@ void APIENTRY_GL4ES gl4es_glGetIntegerv(GLenum pname, GLint *params) {
             break;
         // arrays...
         case GL_POINT_SIZE_RANGE:
-            gles_glGetIntegerv(GL_POINT_SIZE_MIN, params);
-            gles_glGetIntegerv(GL_POINT_SIZE_MAX, params+1);
+        case GL_ALIASED_POINT_SIZE_RANGE:
+            gles_glGetIntegerv(GL_ALIASED_POINT_SIZE_RANGE, params);
             break;
         case GL_NUM_COMPRESSED_TEXTURE_FORMATS:
             gles_glGetIntegerv(GL_NUM_COMPRESSED_TEXTURE_FORMATS, params);
@@ -884,8 +884,8 @@ void APIENTRY_GL4ES gl4es_glGetFloatv(GLenum pname, GLfloat *params) {
 
     switch (pname) {
         case GL_POINT_SIZE_RANGE:
-            gles_glGetFloatv(GL_POINT_SIZE_MIN, params);
-            gles_glGetFloatv(GL_POINT_SIZE_MAX, params+1);
+        case GL_ALIASED_POINT_SIZE_RANGE:
+            gles_glGetFloatv(GL_ALIASED_POINT_SIZE_RANGE, params);
             break;
         case GL_TRANSPOSE_PROJECTION_MATRIX:
             matrix_transpose(TOP(projection_matrix), params);
@@ -952,8 +952,8 @@ void APIENTRY_GL4ES gl4es_glGetDoublev(GLenum pname, GLdouble *params) {
     }
     switch (pname) {
         case GL_POINT_SIZE_RANGE:
-            gles_glGetFloatv(GL_POINT_SIZE_MIN, tmp);
-            gles_glGetFloatv(GL_POINT_SIZE_MAX, tmp+1);
+        case GL_ALIASED_POINT_SIZE_RANGE:
+            gles_glGetFloatv(GL_ALIASED_POINT_SIZE_RANGE, tmp);
             params[0] = tmp[0]; params[1] = tmp[1];
             break;
         case GL_TRANSPOSE_PROJECTION_MATRIX:
@@ -1161,3 +1161,18 @@ const GLubyte* APIENTRY_GL4ES gl4es_glGetStringi(GLenum name, GLuint index) {
     return glstate->extensions_list[index];
 }
 AliasExport(const GLubyte*,glGetStringi,,(GLenum name, GLuint index));
+
+// Some stuff from the ARB_imaging extension
+void gl4es_glGetMinmaxParameteriv(GLenum target, GLenum pname, GLint* params)
+{
+    DBG(printf("unsupported glGetMinmaxParameteriv(%s, %s, %p)\n", PrintEnum(target), PrintEnum(pname), params);)
+    errorShim(GL_INVALID_VALUE);
+}
+AliasExport(void, glGetMinmaxParameteriv,,(GLenum target, GLenum pname, GLint* params));
+
+void gl4es_glGetMinmaxParameterfv(GLenum target, GLenum pname, GLfloat* params)
+{
+    DBG(printf("unsupported glGetMinmaxParameterfv(%s, %s, %p)\n", PrintEnum(target), PrintEnum(pname), params);)
+    errorShim(GL_INVALID_VALUE);
+}
+AliasExport(void, glGetMinmaxParameterfv,,(GLenum target, GLenum pname, GLfloat* params));

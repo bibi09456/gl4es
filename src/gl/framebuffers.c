@@ -153,6 +153,15 @@ void APIENTRY_GL4ES gl4es_glDeleteFramebuffers(GLsizei n, GLuint *framebuffers) 
                                 tex->renderstencil = 0;
                             }
                         }
+                        if (glstate->fbo.current_fb == fb) {
+                            glstate->fbo.current_fb = 0;
+                        }
+                        if (glstate->fbo.fbo_read == fb) {
+                            glstate->fbo.fbo_read = 0;
+                        }
+                        if (glstate->fbo.fbo_draw == fb) {
+                            glstate->fbo.fbo_draw = 0;
+                        }
                         free(fb);
                         kh_del(framebufferlist_t, glstate->fbo.framebufferlist, k);                        
                     }
@@ -1429,6 +1438,18 @@ void APIENTRY_GL4ES gl4es_glBlitFramebuffer(GLint srcX0, GLint srcY0, GLint srcX
             nwidth = tex->nwidth;
             nheight = tex->nheight;
             glname = tex->glname;
+            if(!created) {
+                if((tex->actual.min_filter!=filter) || (tex->actual.mag_filter!=filter)) {
+                    gltexture_t *old = glstate->texture.bound[ENABLED_TEX2D][0];
+                    if(old->texture != glname);
+                        gl4es_glBindTexture(GL_TEXTURE_2D, glname);
+                    gl4es_glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter);
+                    gl4es_glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter);
+                    tex->actual.min_filter = tex->actual.mag_filter = filter;
+                    if(old->texture != glname);
+                        gl4es_glBindTexture(GL_TEXTURE_2D, old->texture);
+                }
+            }
         } else {
             // not good if here!
             nwidth = srcX1;

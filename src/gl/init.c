@@ -96,6 +96,11 @@ void initialize_gl4es() {
     globals4es.mergelist = 1;
     globals4es.queries = 1;
     globals4es.beginend = 1;
+    #ifdef PYRA
+    GetEnvVarInt("LIBGL_DEEPBIND", &globals4es.deepbind, 0);
+    #else
+    GetEnvVarInt("LIBGL_DEEPBIND", &globals4es.deepbind, 1);
+    #endif
     // overrides by env. variables
 		#ifdef GL4ES_COMPILE_FOR_USE_IN_SHARED_LIB
 			GetEnvVarInt("LIBGL_NOBANNER",&globals4es.nobanner,1);
@@ -148,7 +153,7 @@ void initialize_gl4es() {
     }
     env(LIBGL_BLITFB0, globals4es.blitfb0, "Blit to FB 0 force a SwapBuffer");
     env(LIBGL_FPS, globals4es.showfps, "fps counter enabled");
-#ifdef USE_FBIO
+#if defined(USE_FBIO) || defined(PYRA)
     env(LIBGL_VSYNC, globals4es.vsync, "vsync enabled");
 #endif
 #ifdef PANDORA
@@ -673,23 +678,33 @@ void initialize_gl4es() {
     }
     env(LIBGL_GLXNATIVE, globals4es.glxnative, "Don't filter GLXConfig with GLX_X_NATIVE_TYPE");
 #endif
-    char cwd[1024];
+    char cwd[4096];
     if (getcwd(cwd, sizeof(cwd))!= NULL)
         SHUT_LOGD("Current folder is:%s\n", cwd);
 
+    if(hardext.shader_fbfetch) {
+      env(LIBGL_SHADERBLEND, globals4es.shaderblend, "Blend will be handle in shaders");
+    }
     if(hardext.prgbin_n>0 && !globals4es.notexarray) {
         env(LIBGL_NOPSA, globals4es.nopsa, "Don't use PrecompiledShaderArchive");
         if(globals4es.nopsa==0) {
             cwd[0]='\0';
             // TODO: What to do on ANDROID and EMSCRIPTEN?
+            const char* custom_psa = GetEnvVar("LIBGL_PSA_FOLDER");
 #ifdef __linux__
             const char* home = GetEnvVar("HOME");
-            if(home)
+            if(custom_psa)
+              strcpy(cwd, custom_psa);
+            else if(home)
                 strcpy(cwd, home);
-            if(cwd[strlen(cwd)]!='/')
-                strcat(cwd, "/");
+            if(strlen(cwd))
+              if(cwd[strlen(cwd)]!='/')
+                  strcat(cwd, "/");
 #elif defined AMIGAOS4
-            strcpy(cwd, "PROGDIR:");
+            if(custom_psa)
+              strcpy(cwd, custom_psa);
+            else
+              strcpy(cwd, "PROGDIR:");
 #endif
             if(strlen(cwd)) {
                 strcat(cwd, ".gl4es.psa");
@@ -697,7 +712,8 @@ void initialize_gl4es() {
                 fpe_readPSA();
             }
         }
-    }
+    } else 
+      SHUT_LOGD("Not using PSA (prgbin_n=%d, notexarray=%d)\n", hardext.prgbin_n, globals4es.notexarray);
 
     env(LIBGL_SKIPTEXCOPIES, globals4es.skiptexcopies, "Texture Copies will be skipped");
     if(GetEnvVarFloat("LIBGL_FB_TEX_SCALE",&globals4es.fbtexscale,0.0f)) {

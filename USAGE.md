@@ -340,6 +340,10 @@ Disable the use of the Precompiled Shader Archive
 * 0 : Default: use (and save) the PSA (it's saved on $HOME/.gl4es.psa on linux)
 * 1 : Don't use PSA.
 
+##### LIBGL_PSA_FOLDER
+Set a custom path for Precompile Shader Archive
+* XXXXX : set that path. Archive will be saved at XXXXX/.gl4es.psa
+
 ##### LIBGL_USEVBO
 Usage of VBO in certain cases. Only for GLES2+. The 2 and 3 mode are experimental and will probably be slower anyway.
 * 0 : Disable the use of VBO.
@@ -376,3 +380,8 @@ Force normals to be normliazed in FPE
 Blit to FB 0 force a SwapBuffer
 * 0 : Default, don't force a SwapBuffer when glBlitFramebuffer to draw fb0 is used (unless the full FB0 if blitted)
 * 1 : Force a SwapBuffer each time glBlitFramebuffer on FB0 is used (can help some windowed Wine games)
+
+###### LIBGL_DEEPBIND
+Use RTLD_DEEPBIND when loading EGL and GLES library
+* 0 : Default except on PYRA, use RTLD_DEEPBIND when loading EGL/GLES libraries
+* 1 : Default only on PYRA, don't use RTLD_DEEPBIND when loading EGL/GLES libraries

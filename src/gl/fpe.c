@@ -38,7 +38,7 @@ void fpe_Dispose(glstate_t *glstate) {
 
 void APIENTRY_GL4ES fpe_ReleventState_DefaultVertex(fpe_state_t *dest, fpe_state_t *src, shaderconv_need_t* need)
 {
-    // filter out some non relevent state (like texture stuff if texture is disabled)
+    // filter out some non relevant state (like texture stuff if texture is disabled)
     memcpy(dest, src, sizeof(fpe_state_t));
     // alpha test
     if(!dest->alphatest) {
@@ -127,6 +127,14 @@ void APIENTRY_GL4ES fpe_ReleventState_DefaultVertex(fpe_state_t *dest, fpe_state
         dest->pointsprite_upper = 0;
         dest->pointsprite_coord = 0;
     }
+    if(!dest->blend_enable) {
+        dest->blendsrcrgb = 0;
+        dest->blenddstrgb = 0;
+        dest->blendsrcalpha = 0;
+        dest->blenddstalpha = 0;
+        dest->blendeqrgb = 0;
+        dest->blendeqalpha = 0;
+    }
     // ARB_vertex_program and ARB_fragment_program
     dest->vertex_prg_id = 0;    // it's a default vertex program...
     if(!dest->fragment_prg_enable)
@@ -135,7 +143,7 @@ void APIENTRY_GL4ES fpe_ReleventState_DefaultVertex(fpe_state_t *dest, fpe_state
 
 void APIENTRY_GL4ES fpe_ReleventState(fpe_state_t *dest, fpe_state_t *src, int fixed)
 {
-    // filter out some non relevent state (like texture stuff if texture is disabled)
+    // filter out some non relevant state (like texture stuff if texture is disabled)
     memcpy(dest, src, sizeof(fpe_state_t));
     // alpha test
     if(!dest->alphatest) {
@@ -246,6 +254,14 @@ void APIENTRY_GL4ES fpe_ReleventState(fpe_state_t *dest, fpe_state_t *src, int f
 
         dest->vertex_prg_enable = 0;
         dest->fragment_prg_enable = 0;
+    }
+    if(!fixed || !dest->blend_enable) {
+        dest->blendsrcrgb = 0;
+        dest->blenddstrgb = 0;
+        dest->blendsrcalpha = 0;
+        dest->blenddstalpha = 0;
+        dest->blendeqrgb = 0;
+        dest->blendeqalpha = 0;
     }
 }
 
@@ -682,8 +698,6 @@ void APIENTRY_GL4ES fpe_glMultiTexCoord4f(GLenum target, GLfloat s, GLfloat t, G
 
 void APIENTRY_GL4ES fpe_glSecondaryColorPointer(GLint size, GLenum type, GLsizei stride, const GLvoid *pointer) {
     DBG(printf("fpe_glSecondaryColorPointer(%d, %s, %d, %p)\n", size, PrintEnum(type), stride, pointer);)
-    if(pointer==glstate->vao->vertexattrib[ATT_SECONDARY].pointer)
-        return;
     glstate->vao->vertexattrib[ATT_SECONDARY].size = size;
     glstate->vao->vertexattrib[ATT_SECONDARY].type = type;
     glstate->vao->vertexattrib[ATT_SECONDARY].stride = stride;
@@ -692,12 +706,12 @@ void APIENTRY_GL4ES fpe_glSecondaryColorPointer(GLint size, GLenum type, GLsizei
     glstate->vao->vertexattrib[ATT_SECONDARY].normalized = (type==GL_FLOAT)?GL_FALSE:GL_TRUE;
     glstate->vao->vertexattrib[ATT_SECONDARY].real_buffer = 0;
     glstate->vao->vertexattrib[ATT_SECONDARY].real_pointer = 0;
+    glstate->vao->vertexattrib[ATT_SECONDARY].buffer = glstate->vao->vertex;
+
 }
 
 void APIENTRY_GL4ES fpe_glVertexPointer(GLint size, GLenum type, GLsizei stride, const GLvoid *pointer) {
-    DBG(printf("fpe_glVertexPointer(%d, %s, %d, %p)\n", size, PrintEnum(type), stride, pointer);)
-    if(pointer==glstate->vao->vertexattrib[ATT_VERTEX].pointer)
-        return;
+    DBG(printf("fpe_glVertexPointer(%d, %s, %d, %p), vertex_buffer=%p\n", size, PrintEnum(type), stride, pointer, glstate->vao->vertex);)
     glstate->vao->vertexattrib[ATT_VERTEX].size = size;
     glstate->vao->vertexattrib[ATT_VERTEX].type = type;
     glstate->vao->vertexattrib[ATT_VERTEX].stride = stride;
@@ -706,12 +720,11 @@ void APIENTRY_GL4ES fpe_glVertexPointer(GLint size, GLenum type, GLsizei stride,
     glstate->vao->vertexattrib[ATT_VERTEX].normalized = GL_FALSE;
     glstate->vao->vertexattrib[ATT_VERTEX].real_buffer = 0;
     glstate->vao->vertexattrib[ATT_VERTEX].real_pointer = 0;
+    glstate->vao->vertexattrib[ATT_VERTEX].buffer = glstate->vao->vertex;
 }
 
 void APIENTRY_GL4ES fpe_glColorPointer(GLint size, GLenum type, GLsizei stride, const GLvoid *pointer) {
     DBG(printf("fpe_glColorPointer(%d, %s, %d, %p)\n", size, PrintEnum(type), stride, pointer);)
-    if(pointer==glstate->vao->vertexattrib[ATT_COLOR].pointer)
-        return;
     glstate->vao->vertexattrib[ATT_COLOR].size = size;
     glstate->vao->vertexattrib[ATT_COLOR].type = type;
     glstate->vao->vertexattrib[ATT_COLOR].stride = stride;
@@ -720,12 +733,11 @@ void APIENTRY_GL4ES fpe_glColorPointer(GLint size, GLenum type, GLsizei stride, 
     glstate->vao->vertexattrib[ATT_COLOR].normalized = (type==GL_FLOAT)?GL_FALSE:GL_TRUE;
     glstate->vao->vertexattrib[ATT_COLOR].real_buffer = 0;
     glstate->vao->vertexattrib[ATT_COLOR].real_pointer = 0;
+    glstate->vao->vertexattrib[ATT_COLOR].buffer = glstate->vao->vertex;
 }
 
 void APIENTRY_GL4ES fpe_glNormalPointer(GLenum type, GLsizei stride, const GLvoid *pointer) {
     DBG(printf("fpe_glNormalPointer(%s, %d, %p)\n", PrintEnum(type), stride, pointer);)
-    if(pointer==glstate->vao->vertexattrib[ATT_NORMAL].pointer)
-        return;
     glstate->vao->vertexattrib[ATT_NORMAL].size = 3;
     glstate->vao->vertexattrib[ATT_NORMAL].type = type;
     glstate->vao->vertexattrib[ATT_NORMAL].stride = stride;
@@ -734,6 +746,7 @@ void APIENTRY_GL4ES fpe_glNormalPointer(GLenum type, GLsizei stride, const GLvoi
     glstate->vao->vertexattrib[ATT_NORMAL].normalized = (type==GL_FLOAT)?GL_FALSE:GL_TRUE;
     glstate->vao->vertexattrib[ATT_NORMAL].real_buffer = 0;
     glstate->vao->vertexattrib[ATT_NORMAL].real_pointer = 0;
+    glstate->vao->vertexattrib[ATT_NORMAL].buffer = glstate->vao->vertex;
 }
 
 void APIENTRY_GL4ES fpe_glTexCoordPointer(GLint size, GLenum type, GLsizei stride, const GLvoid *pointer) {
@@ -742,8 +755,6 @@ void APIENTRY_GL4ES fpe_glTexCoordPointer(GLint size, GLenum type, GLsizei strid
 
 void APIENTRY_GL4ES fpe_glTexCoordPointerTMU(GLint size, GLenum type, GLsizei stride, const GLvoid *pointer, int TMU) {
     DBG(printf("fpe_glTexCoordPointer(%d, %s, %d, %p) on tmu=%d\n", size, PrintEnum(type), stride, pointer, TMU);)
-    if(pointer==glstate->vao->vertexattrib[ATT_MULTITEXCOORD0+TMU].pointer)
-        return;
     glstate->vao->vertexattrib[ATT_MULTITEXCOORD0+TMU].size = size;
     glstate->vao->vertexattrib[ATT_MULTITEXCOORD0+TMU].type = type;
     glstate->vao->vertexattrib[ATT_MULTITEXCOORD0+TMU].stride = stride;
@@ -752,12 +763,11 @@ void APIENTRY_GL4ES fpe_glTexCoordPointerTMU(GLint size, GLenum type, GLsizei st
     glstate->vao->vertexattrib[ATT_MULTITEXCOORD0+TMU].normalized = GL_FALSE;
     glstate->vao->vertexattrib[ATT_MULTITEXCOORD0+TMU].real_buffer = 0;
     glstate->vao->vertexattrib[ATT_MULTITEXCOORD0+TMU].real_pointer = 0;
+    glstate->vao->vertexattrib[ATT_MULTITEXCOORD0+TMU].buffer = glstate->vao->vertex;
 }
 
 void APIENTRY_GL4ES fpe_glFogCoordPointer(GLenum type, GLsizei stride, const GLvoid *pointer) {
     DBG(printf("fpe_glFogPointer(%s, %d, %p)\n", PrintEnum(type), stride, pointer);)
-    if(pointer==glstate->vao->vertexattrib[ATT_FOGCOORD].pointer)
-        return;
     glstate->vao->vertexattrib[ATT_FOGCOORD].size = 1;
     glstate->vao->vertexattrib[ATT_FOGCOORD].type = type;
     glstate->vao->vertexattrib[ATT_FOGCOORD].stride = stride;
@@ -766,6 +776,7 @@ void APIENTRY_GL4ES fpe_glFogCoordPointer(GLenum type, GLsizei stride, const GLv
     glstate->vao->vertexattrib[ATT_FOGCOORD].normalized = (type==GL_FLOAT)?GL_FALSE:GL_TRUE;
     glstate->vao->vertexattrib[ATT_FOGCOORD].real_buffer = 0;
     glstate->vao->vertexattrib[ATT_FOGCOORD].real_pointer = 0;
+    glstate->vao->vertexattrib[ATT_FOGCOORD].buffer = glstate->vao->vertex;
 }
 
 void APIENTRY_GL4ES fpe_glEnable(GLenum cap) {
@@ -1027,6 +1038,7 @@ void realize_glenv(int ispoint, int first, int count, GLenum type, const void* i
     LOAD_GLES2(glEnableVertexAttribArray)
     LOAD_GLES2(glDisableVertexAttribArray);
     LOAD_GLES2(glVertexAttribPointer);
+    LOAD_GLES2(glVertexAttribIPointer);
     LOAD_GLES2(glVertexAttrib4fv);
     LOAD_GLES2(glUseProgram);
     // update texture state for fpe only
@@ -1449,6 +1461,7 @@ void realize_glenv(int ispoint, int first, int count, GLenum type, const void* i
                         v->size = 4;
                         v->type = GL_FLOAT;
                         v->normalized = 0;
+                        v->integer = 0;
                         v->pointer = scratch->scratch[scratch->size++] = copy_gl_pointer_color_bgra(ptr, w->stride, 4, imin, imax);
                         v->pointer = (char*)v->pointer - imin*4*sizeof(GLfloat);   // adjust for min...
                         v->stride = 0;
@@ -1466,6 +1479,7 @@ void realize_glenv(int ispoint, int first, int count, GLenum type, const void* i
                     v->size = w->size;
                     v->type = w->type;
                     v->normalized = w->normalized;
+                    v->integer = w->integer;
                     v->stride = w->stride;
                     v->real_buffer = w->real_buffer;
                     v->real_pointer = w->real_pointer;
@@ -1475,8 +1489,17 @@ void realize_glenv(int ispoint, int first, int count, GLenum type, const void* i
                 DBG(printf("using Buffer %d\n", v->real_buffer);)
                 bindBuffer(GL_ARRAY_BUFFER, v->real_buffer);
 
-                gles_glVertexAttribPointer(i, v->size, v->type, v->normalized, v->stride, v->pointer);
-                DBG(printf("glVertexAttribPointer(%d, %d, %s, %d, %d, %p)\n", i, v->size, PrintEnum(v->type), v->normalized, v->stride, (GLvoid*)((uintptr_t)v->pointer+((v->buffer)?(uintptr_t)v->buffer->data:0)));)
+                if (v->integer) {
+                    if(gles_glVertexAttribIPointer)
+                        gles_glVertexAttribIPointer(i, v->size, v->type, v->stride, v->pointer);
+                    else
+                        gles_glVertexAttribPointer(i, v->size, v->type, 0, v->stride, v->pointer);
+                    DBG(printf("glVertexAttribIPointer(%d, %d, %s, %d, %p)\n", i, v->size, PrintEnum(v->type), v->stride, v->pointer);)
+                }
+                else {
+                    gles_glVertexAttribPointer(i, v->size, v->type, v->normalized, v->stride, v->pointer);
+                    DBG(printf("glVertexAttribPointer(%d, %d, %s, %d, %d, %p)\n", i, v->size, PrintEnum(v->type), v->normalized, v->stride, v->pointer);)
+                }
             }
         } else {
             // single value case
@@ -1631,6 +1654,7 @@ void builtin_Init(program_t *glprogram) {
     glprogram->builtin_fog.start = -1;
     glprogram->builtin_fog.end = -1;
     glprogram->builtin_fog.scale = -1;
+    glprogram->builtin_blendcolor = -1;
     // fpe uniform
     glprogram->fpe_alpharef = -1;
     // initialise emulated builtin attrib to -1
@@ -1698,6 +1722,7 @@ const char* samplers1d_noa = "_gl4es_Sampler1D_";
 const char* samplers2d_noa = "_gl4es_Sampler2D_";
 const char* samplers3d_noa = "_gl4es_Sampler3D_";
 const char* samplersCube_noa = "_gl4es_SamplerCube_";
+const char* blend_color_code = "_gl4es_BlendColor";
 int builtin_CheckUniform(program_t *glprogram, char* name, GLint id, int size) {
     if(strncmp(name, gl4es_code, strlen(gl4es_code)))
         return 0;   // doesn't start with "_gl4es_", no need to look further
@@ -1999,6 +2024,12 @@ int builtin_CheckUniform(program_t *glprogram, char* name, GLint id, int size) {
             glprogram->has_builtin_texadjust = 1;
             return 1;
         }
+    }
+    // blend color
+    if(strncmp(name, blend_color_code, strlen(blend_color_code))==0) {
+        glprogram->builtin_blendcolor = id;
+        glprogram->has_builtin_blendcolor = 1;
+        return 1;
     }
     // oldprogram
     if(strncmp(name, vtx_progenv_arr, strlen(vtx_progenv_arr))==0) {

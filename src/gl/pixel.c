@@ -230,7 +230,8 @@ bool remap_pixel(const GLvoid *src, GLvoid *dst,
         type_case(GL_HALF_FLOAT_OES, halffloat_t, write_each(,,float_f2h))
         type_case(GL_BYTE, GLbyte, write_each(, * 127.0f,))
         type_case(GL_UNSIGNED_BYTE, GLubyte, write_each(, * 255.0,))
-        type_case(GL_UNSIGNED_SHORT, GLushort, write_each(, / 65535.0f,))
+        type_case(GL_UNSIGNED_SHORT, GLushort, write_each(, * 65535.0f,))
+        type_case(GL_UNSIGNED_INT, GLuint, write_each(, * (float)0xffffffff,))
         type_case(GL_INT8_REV, GLubyte, write_each(, * 255.0,))
         type_case(GL_INT8, GLubyte, write_each(max_a - , * 255.0,))
         // TODO: force 565 to RGB? then we can change [4] -> 3
@@ -811,7 +812,7 @@ bool pixel_convert(const GLvoid *src, GLvoid **dst,
     uintptr_t src_pos = widthalign((uintptr_t)src, align);
     uintptr_t dst_pos = widthalign((uintptr_t)*dst, align);
     // fast optimized loop for common conversion cases first...
-    // TODO: Rewrite that with some Macro, it's obviously doable to simplify the reading (and writting) of all this
+    // TODO: Rewrite that with some Macro, it's obviously doable to simplify the reading (and writing) of all this
     // simple BGRA <-> RGBA / UNSIGNED_BYTE 
     if ((((src_format == GL_BGRA) && (dst_format == GL_RGBA)) || ((src_format == GL_RGBA) && (dst_format == GL_BGRA))) 
         && (dst_type == GL_UNSIGNED_BYTE) && ((src_type == GL_UNSIGNED_BYTE))) {
@@ -1070,7 +1071,7 @@ bool pixel_convert(const GLvoid *src, GLvoid **dst,
     if ((src_format == GL_RGBA) && (dst_format == GL_RGBA) && (dst_type == GL_UNSIGNED_SHORT_5_5_5_1) && ((src_type == GL_UNSIGNED_BYTE))) {
         for (int i = 0; i < height; i++) {
 			for (int j = 0; j < width; j++) {
-				*(GLushort*)dst_pos = ((GLushort)(((char*)src_pos)[2]&0xf8)>>(3-1)) | ((GLushort)(((char*)src_pos)[1]&0xf8)<<(5-2)) | ((GLushort)(((char*)src_pos)[0]&0xf8)<<(10-2)) | ((GLushort)(((char*)src_pos)[3])>>15);
+				*(GLushort*)dst_pos = ((GLushort)(((char*)src_pos)[2]&0xf8)>>(3-1)) | ((GLushort)(((char*)src_pos)[1]&0xf8)<<(5-2)) | ((GLushort)(((char*)src_pos)[0]&0xf8)<<(10-2)) | ((GLushort)(((char*)src_pos)[3])?1:0);
 				src_pos += src_stride;
 				dst_pos += dst_stride;
 			}
@@ -1083,7 +1084,7 @@ bool pixel_convert(const GLvoid *src, GLvoid **dst,
     if ((src_format == GL_BGRA) && (dst_format == GL_RGBA) && (dst_type == GL_UNSIGNED_SHORT_5_5_5_1) && ((src_type == GL_UNSIGNED_BYTE))) {
         for (int i = 0; i < height; i++) {
 			for (int j = 0; j < width; j++) {
-				*(GLushort*)dst_pos = ((GLushort)(((char*)src_pos)[0]&0xf8)>>(3-1)) | ((GLushort)(((char*)src_pos)[1]&0xf8)<<(5-2)) | ((GLushort)(((char*)src_pos)[2]&0xf8)<<(10-2)) | ((GLushort)(((char*)src_pos)[3])>>15);
+				*(GLushort*)dst_pos = ((GLushort)(((char*)src_pos)[0]&0xf8)>>(3-1)) | ((GLushort)(((char*)src_pos)[1]&0xf8)<<(5-2)) | ((GLushort)(((char*)src_pos)[2]&0xf8)<<(10-2)) | ((GLushort)(((char*)src_pos)[3])?1:0);
 				src_pos += src_stride;
 				dst_pos += dst_stride;
 			}

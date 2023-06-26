@@ -69,6 +69,8 @@ void APIENTRY_GL4ES glGetBufferPointervARB(GLenum target, GLenum pname, GLvoid *
 
 // internal actual BindBuffer with cache
 void bindBuffer(GLenum target, GLuint buffer);
+// delete a single buffer (and erase it from the cache)
+void deleteSingleBuffer(GLuint buffer);
 // unbound all buffer
 void unboundBuffers();
 // update wanted Index Buffer
@@ -177,6 +179,7 @@ typedef struct {
     GLint           divisor;
     GLuint          real_buffer;    // If there is a real VBO binded
     const GLvoid*   real_pointer;   // the pointer related to real VBO
+    int             integer;
 } vertexattrib_t;
 
 typedef struct {
